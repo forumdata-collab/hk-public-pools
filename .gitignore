@@ -1,0 +1,26 @@
+# Python
+__pycache__/
+*.py[cod]
+
+# 爬蟲中間檔／探索用 HTML（唔需要入 repo）
+cache/
+recon/
+
+# 部署 staging（fetch_pools.py 自動產生）
+dist/
+
+# 環境／憑證
+.env
+*.token
+lcsd_proxy_token
+
+# 日誌
+*.log
+
+# 截圖（本機交付預覽）
+preview-*.png
+
+# 系統檔
+.DS_Store
+Thumbs.db
+node_modules/

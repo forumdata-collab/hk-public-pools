@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>全港公眾泳池 · 開放狀態｜18 區即時查詢</title>
+<meta name="description" content="康文署全港 18 區公眾游泳池開放狀態：今日各節開放時間、每周大清潔、每年維修工程、暫停開放公告，附互動地圖。">
+<link rel="canonical" href="https://pools.we1co.me/">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<link rel="stylesheet" href="style.css?v=1">
+</head>
+<body>
+
+<div class="nav-bar">
+  <h1>全港公眾泳池 · 開放狀態</h1>
+  <a class="jump" href="#map-block">地圖</a>
+  <a class="jump" href="#list">18 區列表</a>
+  <span class="upd" id="upd">載入中…</span>
+</div>
+
+<div class="wrap">
+  <p class="lede">康文署（LCSD）<b>全港 18 區公眾游泳池</b>即時狀態：今日各節開放時間、每周大清潔、每年維修工程、暫停開放公告。狀態依 <b>香港時間</b> 即時計算，每分鐘更新；資料來源為康文署泳池網頁，最後同步時間見右上角。</p>
+
+  <section class="wx-bar" id="wx"><div class="wx-head wx-ok"><b>天文台警告載入中…</b></div></section>
+
+  <div class="sum" id="sum"></div>
+
+  <div class="chips" id="chips"></div>
+
+  <section class="map-block" id="map-block">
+    <div id="map"></div>
+    <div class="map-foot">
+      <div class="legend">
+        <span><i style="background:#0f7a52"></i>開放中</span>
+        <span><i style="background:#d08a00"></i>即將開始</span>
+        <span><i style="background:#a16207"></i>部分設施暫停／維修</span>
+        <span><i style="background:#6d28d9"></i>大清潔中</span>
+        <span><i style="background:#c2410c"></i>維修／暫停</span>
+        <span><i style="background:#3f4a5a"></i>休館／天氣關閉</span>
+      </div>
+      <span style="margin-left:auto">點地圖標記可跳去該泳池詳情</span>
+    </div>
+  </section>
+
+  <h2 id="list">18 區公眾泳池</h2>
+  <div id="host"></div>
+  <div id="list-anchor"></div>
+</div>
+
+<footer class="wrap" style="padding-top:14px">
+  <p class="src">資料來源：康樂及文化事務署（LCSD）公眾游泳池網頁（開放時間、維修工程、每周大清潔、暫停開放公告）；天氣警告及即時天氣來自香港天文台；座標來自香港地圖服務（map.gov.hk）；公眾假期來自 1823。泳池在惡劣天氣下的安排依康文署公開條文：<a href="https://www.lcsd.gov.hk/tc/beach/arrangements_under_thunderstorm_warning.html" target="_blank" rel="noopener">雷暴警告下公眾游泳池的開放安排</a>、<a href="https://www.lcsd.gov.hk/tc/condition/index.html" target="_blank" rel="noopener">康樂及體育設施使用條件</a>。本頁為民間整理，一切以康文署現場公佈為準。</p>
+  <p class="src">資料 API（CORS 開放，免費取用）：<code>https://pools.we1co.me/data/pools.json</code> — 46 個泳池的地址／電話／設施（含室內外）／逐月開放時間／每年維修／每周大清潔／暫停公告／座標，附 <code>generatedAt</code> 與 <code>schemaVersion</code>。</p>
+  <p class="links"><a href="mailto:youre@we1co.me">youre@we1co.me</a><a href="https://github.com/forumdata-collab" target="_blank" rel="noopener">GitHub</a><a href="https://ko-fi.com/" target="_blank" rel="noopener">Ko-fi</a><a href="https://nousresearch.com" target="_blank" rel="noopener">Nous Research</a><span>2026</span></p>
+</footer>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="data/pools.js?v=1"></script>
+<script src="app.js?v=1"></script>
+</body>
+</html>
