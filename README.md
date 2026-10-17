@@ -23,7 +23,7 @@
 | 設施層級暫停 | 公告設施名與池設施名做正規化比對（含 `嬉水池 2&3` ↔ `嬉水池 (2), 嬉水池 (3)` 展開），命中的設施標紅 |
 | 室內／戶外標記 | 由官網「室內設施／戶外設施」分段推出每項設施屬室內或戶外 |
 | 18 區小地圖 | Leaflet + OpenStreetMap，46 個標記按狀態着色；點標記即跳去該泳池卡；18 區 chips 同步篩選地圖與列表 |
-| 天文台警告條 | 讀 HKO `warnsum` + `rhrread`（每 5 分鐘、cache-buster）；八號或以上熱帶氣旋警告時**全部泳池覆寫為「天氣關閉」**，雷暴警告時按室內／戶外設施給出對應提示 |
+| 天文台警告條（固定置頂） | 簡約一行常駐導覽列下方（警告／氣溫／濕度／UV／閃電），撳一下展開詳情（生效警告、發出時間、對泳池開放的影響）；資料讀 HKO `warnsum` + `rhrread`（每 5 分鐘、cache-buster）。八號或以上熱帶氣旋警告時**全部泳池覆寫為「天氣關閉」**，雷暴警告時按室內／戶外設施給出對應提示；手機自動收起次要指標且零橫向溢出 |
 | 公開 JSON API | `data/pools.json`：`application/json` + `Access-Control-Allow-Origin: *` + `Cache-Control: max-age=300`，附 `schemaVersion` / `generatedAt` / `sourceUrls` |
 
 ## 📍 覆蓋範圍

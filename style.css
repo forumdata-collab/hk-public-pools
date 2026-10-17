@@ -1,6 +1,6 @@
 :root{
   --ink:#17181a; --mut:#5b6068; --mut2:#8a919b; --line:#e2e6ec; --bg:#f5f7fa; --card:#fff;
-  --ac:#0f5c8c; --ac-soft:#e8f1f8; --nav-h:56px;
+  --ac:#0f5c8c; --ac-soft:#e8f1f8; --nav-h:56px; --wx-h:31px;
   --c-open:#0f7a52; --c-open-bg:#e6f5ee;
   --c-soon:#8a5a00; --c-soon-bg:#fff4e0;
   --c-done:#94a3b8; --c-done-bg:#f1f5f9;
@@ -10,7 +10,7 @@
   --c-limited:#a16207; --c-limited-bg:#fef9c3;
 }
 *{box-sizing:border-box}
-html{scroll-behavior:smooth;scroll-padding-top:calc(var(--nav-h) + 64px)}
+html{scroll-behavior:smooth;scroll-padding-top:calc(var(--nav-h) + var(--wx-h) + 66px)}
 body{margin:0;background:var(--bg);color:var(--ink);
   font:15.5px/1.62 -apple-system,"PingFang HK","Noto Sans TC","Hiragino Sans",system-ui,sans-serif;
   -webkit-text-size-adjust:100%}
@@ -26,24 +26,32 @@ a:hover{text-decoration:underline}
 .nav-bar .jump{font-size:13px;color:var(--ac);border:1px solid var(--line);border-radius:6px;padding:3px 8px;white-space:nowrap}
 @media(max-width:640px){ .nav-bar h1{font-size:14px} .nav-bar .upd{display:none} }
 
-.wrap{max-width:1140px;margin:0 auto;padding:calc(var(--nav-h) + 16px) 14px 40px}
+.wrap{max-width:1140px;margin:0 auto;padding:calc(var(--nav-h) + var(--wx-h) + 16px) 14px 40px}
 .lede{color:var(--mut);font-size:14px;margin:0 0 14px}
 .lede b{color:var(--ink)}
 h2{font-size:19px;margin:30px 0 12px;padding-bottom:8px;border-bottom:2px solid var(--ink)}
 h2 .cnt{font-size:13px;font-weight:400;color:var(--mut);margin-left:8px}
 
-/* 天文台警告條 */
-.wx-bar{border:1px solid var(--line);background:var(--card);border-radius:10px;overflow:hidden;margin:0 0 14px}
-.wx-head{display:flex;gap:10px;align-items:baseline;padding:8px 12px;font-size:14px;background:#f8fafc}
-.wx-head .wx-t{margin-left:auto;font-size:12px;color:var(--mut2);white-space:nowrap}
-.wx-head.wx-ok{background:#f5f9f6}
-.wx-head.wx-l1{background:#fff8e6;color:#8a5a00}
-.wx-head.wx-l2{background:#fff1e0;color:#9a3412}
-.wx-head.wx-l3{background:#fde8e8;color:#991b1b}
-.wx-row{display:flex;flex-wrap:wrap;gap:12px;align-items:center;padding:7px 12px;font-size:13px;color:var(--mut);border-top:1px solid var(--line)}
-.wx-notes{padding:7px 12px 9px;font-size:13px;border-top:1px solid var(--line);color:var(--ink)}
-.wx-notes div{margin:2px 0}
-.wx-src{margin-top:5px;color:var(--mut2);font-size:11.5px}
+/* 天文台警告條：固定置頂（簡約一行，撳一下展開詳情） */
+.wx-bar{position:fixed;top:var(--nav-h);left:0;right:0;z-index:890;background:#fff;
+  border-bottom:1px solid var(--line)}
+.wx-strip{display:flex;align-items:center;gap:9px;height:var(--wx-h);padding:0 14px;
+  font-size:12.5px;line-height:1;white-space:nowrap;overflow:hidden;cursor:pointer;background:#f8fafc}
+.wx-strip .w{font-weight:600;overflow:hidden;text-overflow:ellipsis}
+.wx-strip .m{color:var(--mut);flex:0 0 auto}
+.wx-strip .more{margin-left:auto;color:var(--ac);flex:0 0 auto}
+.wx-bar.wx-ok .wx-strip{background:#f6faf7}
+.wx-bar.wx-l1 .wx-strip{background:#fff8e6;color:#8a5a00}
+.wx-bar.wx-l2 .wx-strip{background:#fff1e0;color:#9a3412}
+.wx-bar.wx-l3 .wx-strip{background:#fde8e8;color:#991b1b}
+.wx-body{position:absolute;top:100%;left:0;right:0;background:#fff;border-bottom:1px solid var(--line);
+  padding:9px 14px 11px;font-size:13px;max-height:62vh;overflow:auto;display:none;
+  box-shadow:0 8px 16px rgba(0,0,0,.06)}
+.wx-bar.open .wx-body{display:block}
+.wx-body .r{display:flex;flex-wrap:wrap;gap:12px;color:var(--mut);font-size:12.5px;margin:2px 0 6px}
+.wx-body .note-line{margin:3px 0}
+.wx-src{margin-top:6px;color:var(--mut2);font-size:11.5px}
+@media(max-width:560px){ .wx-strip .hide-sm{display:none} }
 
 /* summary */
 .sum{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 16px}
@@ -79,7 +87,7 @@ h2 .cnt{font-size:13px;font-weight:400;color:var(--mut);margin-left:8px}
 
 /* pool card */
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:12px}
-.card{border:1px solid var(--line);background:var(--card);border-radius:10px;padding:12px 13px;scroll-margin-top:calc(var(--nav-h) + 76px)}
+.card{border:1px solid var(--line);background:var(--card);border-radius:10px;padding:12px 13px;scroll-margin-top:calc(var(--nav-h) + var(--wx-h) + 78px)}
 .card.hl{border-color:var(--ac);box-shadow:0 0 0 3px var(--ac-soft)}
 .card h4{margin:0;font-size:16px;line-height:1.35;display:flex;gap:8px;align-items:flex-start;flex-wrap:wrap}
 .card h4 .en{display:block;font-size:11.5px;color:var(--mut2);font-weight:400;letter-spacing:.2px}

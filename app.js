@@ -7,7 +7,7 @@
   var CN = ["日", "一", "二", "三", "四", "五", "六"];
   var MN = ["一月", "二月", "三月", "四月", "五月", "六月", "七月", "八月", "九月", "十月", "十一月", "十二月"];
   var MN_SHORT = ["1月", "2月", "3月", "4月", "5月", "6月", "7月", "8月", "9月", "10月", "11月", "12月"];
-  var STATE = { filter: "all", open: new Set(), html: {}, built: false };
+  var STATE = { filter: "all", open: new Set(), html: {}, built: false, wxOpen: false };
 
   function hkNow() { return new Date(new Date().toLocaleString("en-US", { timeZone: "Asia/Hong_Kong" })); }
   function p2(n) { return (n < 10 ? "0" : "") + n; }
@@ -174,8 +174,8 @@
   }
 
   function renderWx() {
-    var box = document.getElementById("wx");
-    if (!box) return;
+    var bar = document.getElementById("wx");
+    if (!bar) return;
     var r = WX.read || {}, sum = WX.sum || {};
     var t = ((r.temperature || {}).data || []).filter(function (x) { return x.place === "香港天文台" || x.place === "京士柏"; })[0];
     var hum = ((r.humidity || {}).data || [])[0];
@@ -189,19 +189,37 @@
 
     var lv = ws.length ? ws[0].lv : 0;
     var cls = lv >= 3 ? "wx-l3" : (lv === 2 ? "wx-l2" : (lv === 1 ? "wx-l1" : "wx-ok"));
+    var strip = document.getElementById("wx-strip"), body = document.getElementById("wx-body");
+    if (!strip || !body) return;
+    bar.className = "wx-bar " + cls + (STATE.wxOpen ? " open" : "");
+    // 簡約一行：警告 / 溫度 / 濕度 / UV / 閃電
+    var s = [];
+    if (!WX.at && !ws.length) s.push('<span class="w">天文台警告載入中…</span>');
+    else if (ws.length) s.push('<span class="w">⚠️ ' + ws.map(function (w) { return esc(w.label) + (w.type ? "（" + esc(w.type) + "）" : ""); }).join("、") + "</span>");
+    else s.push('<span class="w">現時無天文台警告</span>');
+    if (t) s.push('<span class="m">' + esc(String(t.value)) + "°C</span>");
+    if (hum) s.push('<span class="m hide-sm">濕度 ' + esc(String(hum.value)) + "%</span>");
+    if (uv) s.push('<span class="m hide-sm">UV ' + esc(String(uv.value)) + esc(uv.desc ? " " + uv.desc : "") + "</span>");
+    if (strike.length) s.push('<span class="m">⚡ ' + strike.map(function (x) { return esc(x.place); }).join("、") + "</span>");
+    s.push('<span class="more">' + (STATE.wxOpen ? "收起 ▴" : "詳情 ▾") + "</span>");
+    strip.innerHTML = s.join("");
+    strip.onclick = function () { STATE.wxOpen = !STATE.wxOpen; renderWx(); };
+    // 詳情（撳落才展開）
     var out = [];
-    out.push('<div class="wx-head ' + cls + '">');
-    out.push('<b>' + (ws.length ? "⚠️ 天文台警告生效：" + ws.map(function (w) { return esc(w.label) + (w.type ? "（" + esc(w.type) + "）" : ""); }).join("、") : "現時沒有天文台警告") + "</b>");
-    if (r.updateTime) out.push('<span class="wx-t">天文台更新 ' + esc(r.updateTime.slice(11, 16)) + "</span>");
-    out.push("</div>");
-    out.push('<div class="wx-row">');
+    out.push('<div class="r">');
     if (t) out.push("<span>氣溫 " + esc(String(t.value)) + "°C（" + esc(t.place) + "）</span>");
     if (hum) out.push("<span>濕度 " + esc(String(hum.value)) + "%</span>");
     if (uv) out.push("<span>紫外線指數 " + esc(String(uv.value)) + "（" + esc(uv.desc || "") + "）</span>");
     if (flood.length) out.push("<span>有雨地區 " + flood.length + " 個</span>");
     if (strike.length) out.push('<span style="color:#c2410c">⚡ 有閃電報告：' + strike.map(function (x) { return esc(x.place); }).join("、") + "</span>");
-    out.push('<a href="' + "https://www.hko.gov.hk/tc/wxinfo/currwx/current.htm" + '" target="_blank" rel="noopener">天文台實時天氣 ↗</a>');
+    if (r.updateTime) out.push("<span>天文台更新 " + esc(r.updateTime.slice(11, 16)) + "</span>");
+    out.push('<a href="https://www.hko.gov.hk/tc/wxinfo/currwx/current.htm" target="_blank" rel="noopener">天文台實時天氣 ↗</a>');
     out.push("</div>");
+    if (ws.length) {
+      out.push('<div class="note-line"><b>生效警告</b>：' + ws.map(function (w) {
+        return esc(w.label) + (w.type ? "（" + esc(w.type) + "）" : "") + (w.issue ? " 　發出：" + esc(w.issue.slice(11, 16)) : "");
+      }).join("；") + "</div>");
+    }
     // 對泳池開放嘅影響（依康文署條文）
     var notes = [];
     if (tc8in(sum)) notes.push("八號或以上熱帶氣旋警告信號生效：康文署轄下康樂及體育設施<b>即會關閉</b>；信號取消後場地職員會盡快返回，如情況許可 2 小時內重開。");
@@ -210,8 +228,9 @@
     if (hasCode(sum, /^WRAIN[RB]$/)) notes.push("暴雨警告（紅／黑）生效：露天活動請以場地即時公佈為準；如與雷暴警告同時生效，室外設施會暫停。");
     if (hasCode(sum, /^WFIRE/)) notes.push("火災危險警告對泳池開放無直接影響。");
     if (!notes.length) notes.push("現時沒有直接影響泳池開放嘅警告；如天氣惡劣，場地可即時暫停開放，以官方公佈為準。");
-    out.push('<div class="wx-notes">' + notes.map(function (n) { return "<div>· " + n + "</div>"; }).join("") + '<div class="wx-src">' + IMPACT + '</div></div>');
-    box.innerHTML = out.join("");
+    out.push(notes.map(function (n) { return '<div class="note-line">· ' + n + "</div>"; }).join(""));
+    out.push('<div class="wx-src">' + IMPACT + '</div>');
+    body.innerHTML = out.join("");
   }
 
   function wxNoteFor(p) {
