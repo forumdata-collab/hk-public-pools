@@ -91,6 +91,9 @@ curl -s https://pools.we1co.me/data/pools.json | jq '.pools[] | select(.district
 }
 ```
 
+> `data/pools.json` 與 `data/pools.js` 是**提交時的最新快照**；即時資料請直接用 live API（下方）。
+> 快照每幾小時由本機 cron 於部署時刷新，repo 內的版本未必等於當刻線上版本。
+
 ## 🚀 Quick Start
 
 ```bash
