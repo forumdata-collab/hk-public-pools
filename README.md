@@ -114,10 +114,14 @@ python3 -m http.server 8899              # 開 http://localhost:8899 睇站
 ### 部署
 
 ```bash
-source ~/.hermes/.env        # 或自行 export CLOUDFLARE_API_TOKEN / CLOUDFLARE_ACCOUNT_ID
+export CLOUDFLARE_API_TOKEN=…        # Pages 部署憑證（wrangler 只認呢個名）
+export CLOUDFLARE_ACCOUNT_ID=…
 python3 fetch_pools.py --deploy      # stage → bump ?v= → wrangler pages deploy dist/
 bash run-sync.sh                     # 完整流程：抓取 + 部署 + live 收斂驗證（成功完全靜默）
 ```
+
+`run-sync.sh` 會自動載入 `${HERMES_ENV:-$HOME/.hermes/.env}`（如你慣用集中式憑證檔，可用 `HERMES_ENV` 指向它）；
+cron 使用時只需把 `run-sync.sh` 包一層 `~/.hermes/scripts/<name>.sh`（`exec bash <專案>/run-sync.sh`）。
 
 `run-sync.sh` 設計成 cron watchdog：成功 **零輸出**；失敗或有欄位警告才印訊息並以非零 exit 結束。
 Live 版本驗證會重試最多 6 次 × 15 秒（CF edge 需要時間收斂，一次唔中可以係快取未更新，唔應報錯）。
