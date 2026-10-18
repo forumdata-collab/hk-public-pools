@@ -619,6 +619,7 @@ def stage():
     os.makedirs(os.path.join(st, "data"))
     for f in ("index.html", "style.css", "app.js"):
         shutil.copy(os.path.join(BASE, f), st)
+    shutil.copytree(os.path.join(BASE, "vendor"), os.path.join(st, "vendor"))   # Leaflet 自帶，唔靠 CDN
     shutil.copy(os.path.join(DATA, "pools.js"), os.path.join(st, "data"))
     shutil.copy(os.path.join(DATA, "pools.json"), os.path.join(st, "data"))
     io.open(os.path.join(st, "_headers"), "w", encoding="utf-8").write(

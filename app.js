@@ -310,8 +310,8 @@
         if (box.id) STATE.open.has(box.id) ? STATE.open["delete"](box.id) : STATE.open.add(box.id);
       };
     });
-    Array.prototype.forEach.call(host.querySelectorAll(".acts a[data-goto]"), function (a) {
-      a.onclick = function (e) { e.preventDefault(); var t = document.getElementById(a.dataset.goto); if (t) { t.scrollIntoView({ behavior: "smooth", block: "center" }); } };
+    Array.prototype.forEach.call(host.querySelectorAll(".acts a[data-gotomap]"), function (a) {
+      a.onclick = function (e) { e.preventDefault(); window.__poolsShowOnMap(a.dataset.gotomap); };
     });
 
     buildMap(byD, now);
@@ -335,8 +335,14 @@
     }).join("");
     var monthsNote = Object.keys(p.months || {}).filter(function (k) { return (p.months[k].notes || []).length; })
       .map(function (k) { return k + "：" + p.months[k].notes.join("；"); }).join("　");
+    /* 全場維修／暫停開放／大清潔：時段表照列，但唔可以話「進行中」——泳池根本入唔到 */
+    var blocked = (s.cls === "maint" || s.cls === "clean");
     var sessRows = rows.map(function (r) {
       var cls = r.state === "now" ? "now" : (r.state === "over" ? "over" : "");
+      if (r.state === "now" && blocked) {
+        cls = "over";
+        return '<tr class="' + cls + '"><td>' + esc(r.label) + '</td><td>' + esc(r.start) + " – " + esc(r.end) + '</td><td>暫停（' + (s.cls === "clean" ? "大清潔" : "維修") + '）</td></tr>';
+      }
       var rem = "";
       if (r.state === "now") {
         var left = toMin(r.end) - (now.getHours() * 60 + now.getMinutes());
@@ -360,7 +366,7 @@
     var act = [];
     if (p.geo) act.push('<a href="https://www.google.com/maps/search/?api=1&query=' + p.geo.lat + "," + p.geo.lng + '" target="_blank" rel="noopener">Google 地圖</a>');
     act.push('<a href="' + esc(p.officialUrl) + '" target="_blank" rel="noopener">LCSD 官方頁面</a>');
-    act.push('<a href="#" data-goto="' + id + '-map">在地圖看</a>');
+    act.push('<a href="#" data-gotomap="' + id + '">在地圖看</a>');
     return '<article class="card" id="' + id + '" data-name="' + esc(p.name) + '">' +
       '<h4><span class="badge ' + s.cls + '">' + esc(s.label) + "</span> " + esc(p.name) +
       '<span class="en">' + esc(p.nameEn || "") + "</span></h4>" +
@@ -379,7 +385,22 @@
   }
 
   /* ── 地圖 ── */
-  var map, layer;
+  var map, layer, markers = {};
+
+  /* 卡片「在地圖看」→ 捲去地圖、放大到該池、開佢個 popup（卡片本身亦閃一閃） */
+  window.__poolsShowOnMap = function (id) {
+    var m = markers[id], el = document.getElementById("map");
+    if (!m || !map) {                              // 冇座標／地圖未好 → 退回捲到卡片
+      var c = document.getElementById(id);
+      if (c) { c.classList.add("hl"); c.scrollIntoView({ behavior: "smooth", block: "center" });
+               setTimeout(function () { c.classList.remove("hl"); }, 2600); }
+      return false;
+    }
+    if (el) el.scrollIntoView({ behavior: "smooth", block: "center" });
+    map.setView(m.getLatLng(), Math.max(map.getZoom(), 16));
+    m.openPopup();                     // 一定要用 layer 自己嘅 openPopup（map.openPopup 要 content，唔係 layer）
+    return true;
+  };
   function buildMap(byD, now) {
     if (typeof L === "undefined") return;
     if (!map) {
@@ -388,6 +409,7 @@
     }
     if (layer) { map.removeLayer(layer); }
     layer = L.layerGroup();
+    markers = {};
     (D.pools || []).forEach(function (p) {
       if (!p.geo) return;
       var s = p._st || statusOf(p, now);
@@ -400,6 +422,7 @@
         esc(p.district) + "　" + esc(p.address || "") + "<br>" +
         '<a href="#" onclick="window.__poolsGoto(\'' + slugOf(p) + '\');return false;">查看詳情 ↓</a>');
       m.on("click", function () { window.__poolsGoto(slugOf(p), false); });
+      markers[slugOf(p)] = m;
       layer.addLayer(m);
     });
     layer.addTo(map);
