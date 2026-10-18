@@ -101,7 +101,8 @@
       out.detail.push("每周大清潔：上午10:00 至第二節完結，同日第三節重開。");
     } else if (base === "closed") {
       out.cls = "closed"; out.label = "休館";
-      if (out.rows.length) out.detail.push("今日全部時段已完結。");
+      if (nowM < 300) out.detail.push("凌晨休館時段：今日首節 " + (sessions.length ? sessions[0].start : "—") + " 開始。");
+      else if (out.rows.length) out.detail.push("今日全部時段已完結。");
     } else if (anns.length) {
       out.cls = "limited"; out.label = "部分設施暫停";
       out.detail.push("部分設施暫停開放（見下方通告）。");
@@ -143,20 +144,37 @@
   var WX = { sum: null, read: null, at: null, err: false };
   var WARN_META = {
     TC1: { n: "一號戒備信號", lv: 1 }, TC3: { n: "三號強風信號", lv: 1 },
+    WTCSGNL: { n: "熱帶氣旋警告信號", lv: 2, t: 1 },
     TC8NE: { n: "八號東北烈風或暴風信號", lv: 3 }, TC8NW: { n: "八號西北烈風或暴風信號", lv: 3 },
     TC8SE: { n: "八號東南烈風或暴風信號", lv: 3 }, TC8SW: { n: "八號西南烈風或暴風信號", lv: 3 },
     TC9: { n: "九號烈風或暴風風力增強信號", lv: 3 }, TC10: { n: "十號颶風信號", lv: 3 },
     WTS: { n: "雷暴警告", lv: 2 },
     WRAINY: { n: "黃色暴雨警告", lv: 1 }, WRAINR: { n: "紅色暴雨警告", lv: 2 }, WRAINB: { n: "黑色暴雨警告", lv: 3 },
-    WFIRE: { n: "火災危險警告", lv: 1 }, WFROST: { n: "霜凍警告", lv: 1 },
+    WFIRE: { n: "火災危險警告", lv: 1, t: 1 }, WFIREY: { n: "火災危險警告（黃色）", lv: 1 }, WFIRER: { n: "火災危險警告（紅色）", lv: 1 },
+    WFROST: { n: "霜凍警告", lv: 1 },
     WHOT: { n: "酷熱天氣警告", lv: 1 }, WCOLD: { n: "寒冷天氣警告", lv: 1 },
-    WMON: { n: "強烈季候風信號", lv: 1 }, WL: { n: "山泥傾瀉警告", lv: 2 },
-    WFN: { n: "新界北部水浸特別報告", lv: 2 }, WT: { n: "海嘯警告", lv: 3 }, WMS: { n: "特別天氣提示", lv: 1 }
+    WMON: { n: "強烈季候風信號", lv: 1 }, WMSGNL: { n: "強烈季候風信號", lv: 1 }, WL: { n: "山泥傾瀉警告", lv: 2 },
+    WFN: { n: "新界北部水浸特別報告", lv: 2 }, WFNTSA: { n: "新界北部水浸特別報告", lv: 2 },
+    WTMW: { n: "海嘯警告", lv: 3 }, WT: { n: "海嘯警告", lv: 3 }, WMS: { n: "特別天氣提示", lv: 1 },
+    WTCPRE8: { n: "預警八號熱帶氣旋警告信號之特別報告", lv: 2 }
   };
   var IMPACT = "以上安排依康文署公開條文（雷暴警告下泳池開放安排、康樂及體育設施使用條件）；一切以場地即時公佈為準。";
 
-  function tc8in(sum) { return Object.keys(sum || {}).some(function (c) { return /^TC(8|9|10)/.test(c); }); }
-  function hasCode(sum, re) { return Object.keys(sum || {}).some(function (c) { return re.test(c); }); }
+  /* HKO warnsum 格式：頂層屬性 = 警告代號（WTCSGNL／WRAIN／WFIRE／WTS…），
+     子類型放喺 .code（TC8NE／WRAINB／WFIREY…）。以前直接用頂層 key 比對子類型 → 八號信號永遠認唔到。 */
+  function warnEntries(sum) {
+    return Object.keys(sum || {}).map(function (c) {
+      var w = sum[c]; if (!w || typeof w !== "object") return null;
+      var sub = String(w.code || ""), type = String(w.type || ""), name = String(w.name || "");
+      var eff = WARN_META[sub] ? sub : (WARN_META[c] ? c : (sub || c));
+      var m = WARN_META[eff];
+      var label = m ? (m.n + (m.t && type ? "（" + type + "）" : ""))
+                    : (name || c) + (type && name.indexOf(type) < 0 ? "（" + type + "）" : "");
+      return { key: c, sub: sub, eff: eff, label: label, lv: m ? m.lv : 1, issue: w.issueTime || "", cancel: /^CANCEL$/i.test(sub) };
+    }).filter(function (e) { return e && !e.cancel; }).sort(function (a, b) { return b.lv - a.lv; });
+  }
+  function tc8in(sum) { return warnEntries(sum).some(function (e) { return /^TC(8|9|10)/.test(e.sub || e.eff); }); }
+  function hasCode(sum, re) { return warnEntries(sum).some(function (e) { return re.test(e.key) || re.test(e.sub) || re.test(e.eff); }); }
 
   function loadWx() {
     var base = "https://data.weather.gov.hk/weatherAPI/opendata/weather.php?dataType=";
@@ -182,10 +200,7 @@
     var uv = ((r.uvindex || {}).data || [])[0];
     var flood = ((r.rainfall || {}).data || []).filter(function (x) { return (x.max || 0) > 0; });
     var strike = ((((r.lightning || {}).data) || []).filter(function (x) { return String(x.occur) === "true"; })) || [];
-    var ws = Object.keys(sum).map(function (c) {
-      var m = WARN_META[c] || { n: (sum[c].name || c) + (sum[c].type ? "（" + sum[c].type + "）" : ""), lv: 1 };
-      return { code: c, name: sum[c].name || m.n, label: m.n, type: sum[c].type || "", lv: m.lv, issue: sum[c].issueTime || "" };
-    }).sort(function (a, b) { return b.lv - a.lv; });
+    var ws = warnEntries(sum);
 
     var lv = ws.length ? ws[0].lv : 0;
     var cls = lv >= 3 ? "wx-l3" : (lv === 2 ? "wx-l2" : (lv === 1 ? "wx-l1" : "wx-ok"));
@@ -195,7 +210,7 @@
     // 簡約一行：警告 / 溫度 / 濕度 / UV / 閃電
     var s = [];
     if (!WX.at && !ws.length) s.push('<span class="w">天文台警告載入中…</span>');
-    else if (ws.length) s.push('<span class="w">⚠️ ' + ws.map(function (w) { return esc(w.label) + (w.type ? "（" + esc(w.type) + "）" : ""); }).join("、") + "</span>");
+    else if (ws.length) s.push('<span class="w">⚠️ ' + ws.map(function (w) { return esc(w.label); }).join("、") + "</span>");
     else s.push('<span class="w">現時無天文台警告</span>');
     if (t) s.push('<span class="m">' + esc(String(t.value)) + "°C</span>");
     if (hum) s.push('<span class="m hide-sm">濕度 ' + esc(String(hum.value)) + "%</span>");
@@ -217,7 +232,7 @@
     out.push("</div>");
     if (ws.length) {
       out.push('<div class="note-line"><b>生效警告</b>：' + ws.map(function (w) {
-        return esc(w.label) + (w.type ? "（" + esc(w.type) + "）" : "") + (w.issue ? " 　發出：" + esc(w.issue.slice(11, 16)) : "");
+        return esc(w.label) + (w.issue ? " 　發出：" + esc(w.issue.slice(11, 16)) : "");
       }).join("；") + "</div>");
     }
     // 對泳池開放嘅影響（依康文署條文）

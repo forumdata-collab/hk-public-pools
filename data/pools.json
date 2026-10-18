@@ -1,6 +1,6 @@
 {
  "schemaVersion": 1,
- "generatedAt": "2026-10-17T08:58:22Z",
+ "generatedAt": "2026-10-18T05:12:50Z",
  "source": "康樂及文化事務署（LCSD）公眾游泳池網頁",
  "sourceUrls": {
   "pools": "https://www.lcsd.gov.hk/clpss/tc/webApp/Swimming.do?dist=locN",
@@ -1498,13 +1498,23 @@
    },
    "announcements": [
     {
-     "start": "2026-10-17T13:00",
-     "end": "2026-10-17T17:00",
+     "start": "2026-10-17T18:00",
+     "end": "2026-10-18T18:00",
+     "facilities": [
+      "訓練池",
+      "習泳池"
+     ],
+     "reason": "救生員不足",
+     "remarks": "不適用"
+    },
+    {
+     "start": "2026-10-18T18:00",
+     "end": "2026-10-18T22:00",
      "facilities": [
       "主池"
      ],
-     "reason": "池水受污染",
-     "remarks": "發現物體 : 嘔吐物"
+     "reason": "其他",
+     "remarks": "試行計劃 : 優先開放摩理臣山游泳池淺水設施（即訓練池或習泳池）。"
     }
    ],
    "photo": "https://www.lcsd.gov.hk/en/beach/common/graphics/SP/small/Morrison%20Hill%20SP.jpg",
@@ -1815,16 +1825,6 @@
     "raw": "逢星期一 (星期五 ※)"
    },
    "announcements": [
-    {
-     "start": "2026-10-17T06:30",
-     "end": "2026-10-17T22:00",
-     "facilities": [
-      "主池",
-      "多用途池"
-     ],
-     "reason": "游泳比賽",
-     "remarks": "主辦項目 : 香港公開拯溺錦標賽 主辦機構 : 中國香港拯溺總會"
-    },
     {
      "start": "2026-10-19T06:30",
      "end": "2026-10-19T22:00",
@@ -3272,11 +3272,10 @@
    },
    "announcements": [
     {
-     "start": "2026-10-17T14:15",
-     "end": "2026-10-17T17:00",
+     "start": "2026-10-18T13:00",
+     "end": "2026-10-18T14:15",
      "facilities": [
-      "嬉水池一號",
-      "嬉水池二號"
+      "嬉水池一號"
      ],
      "reason": "救生員不足",
      "remarks": "不適用"
@@ -5745,15 +5744,6 @@
    },
    "announcements": [
     {
-     "start": "2026-10-17T14:15",
-     "end": "2026-10-17T22:00",
-     "facilities": [
-      "嬉水池"
-     ],
-     "reason": "救生員不足",
-     "remarks": "不適用"
-    },
-    {
      "start": "2026-10-23T07:30",
      "end": "2026-10-23T20:00",
      "facilities": [
@@ -6106,8 +6096,8 @@
    },
    "announcements": [
     {
-     "start": "2026-10-17T06:30",
-     "end": "2026-10-17T22:00",
+     "start": "2026-10-18T06:30",
+     "end": "2026-10-18T22:00",
      "facilities": [
       "兒童池"
      ],
@@ -6442,8 +6432,8 @@
    },
    "announcements": [
     {
-     "start": "2026-10-17T14:15",
-     "end": "2026-10-17T22:00",
+     "start": "2026-10-18T06:30",
+     "end": "2026-10-18T14:15",
      "facilities": [
       "戲水池",
       "韻律噴泉"
@@ -7103,15 +7093,6 @@
     "raw": "逢星期三 (星期五 ※)"
    },
    "announcements": [
-    {
-     "start": "2026-10-17T19:00",
-     "end": "2026-10-17T22:00",
-     "facilities": [
-      "習泳池 (1)"
-     ],
-     "reason": "救生員不足",
-     "remarks": "不適用"
-    },
     {
      "start": "2026-10-23T07:30",
      "end": "2026-10-23T16:00",
@@ -7835,17 +7816,7 @@
     "fallback": "三",
     "raw": "逢星期五 (星期三 ※)"
    },
-   "announcements": [
-    {
-     "start": "2026-10-17T13:00",
-     "end": "2026-10-17T22:00",
-     "facilities": [
-      "跳水池"
-     ],
-     "reason": "救生員不足",
-     "remarks": "不適用"
-    }
-   ],
+   "announcements": [],
    "photo": "https://www.lcsd.gov.hk/en/beach/common/graphics/SP/small/Sha%20Tin%20SP.jpg",
    "district": "沙田",
    "districtEn": "Sha Tin",
@@ -8171,8 +8142,8 @@
    },
    "announcements": [
     {
-     "start": "2026-10-17T14:30",
-     "end": "2026-10-17T18:00",
+     "start": "2026-10-18T06:30",
+     "end": "2026-10-18T14:30",
      "facilities": [
       "大型滑水梯"
      ],
@@ -8909,8 +8880,8 @@
    },
    "announcements": [
     {
-     "start": "2026-10-17T14:15",
-     "end": "2026-10-17T22:00",
+     "start": "2026-10-18T06:30",
+     "end": "2026-10-18T14:15",
      "facilities": [
       "訓練池",
       "跳水池",
@@ -9255,8 +9226,8 @@
    },
    "announcements": [
     {
-     "start": "2026-10-17T19:00",
-     "end": "2026-10-17T22:00",
+     "start": "2026-10-18T13:00",
+     "end": "2026-10-18T22:00",
      "facilities": [
       "習泳池"
      ],
@@ -9882,7 +9853,26 @@
     "fallback": "一",
     "raw": "逢星期二 (星期一 ※)"
    },
-   "announcements": [],
+   "announcements": [
+    {
+     "start": "2026-10-18T06:30",
+     "end": "2026-10-18T22:00",
+     "facilities": [
+      "滑水梯"
+     ],
+     "reason": "救生員不足",
+     "remarks": "不適用"
+    },
+    {
+     "start": "2026-10-18T06:30",
+     "end": "2026-10-18T22:00",
+     "facilities": [
+      "嬉水池 (1)"
+     ],
+     "reason": "救生員不足",
+     "remarks": "不適用"
+    }
+   ],
    "photo": "https://www.lcsd.gov.hk/en/beach/common/graphics/SP/small/Yan%20Oi%20Tong%20SP.jpg",
    "district": "屯門",
    "districtEn": "Tuen Mun",
@@ -10514,14 +10504,10 @@
    },
    "announcements": [
     {
-     "start": "2026-10-17T14:15",
-     "end": "2026-10-17T22:00",
+     "start": "2026-10-18T13:00",
+     "end": "2026-10-18T14:15",
      "facilities": [
-      "主池",
-      "習泳池 (1)",
-      "習泳池 (2)",
-      "習泳池 (3)",
-      "跳水池"
+      "主池"
      ],
      "reason": "救生員不足",
      "remarks": "不適用"
@@ -10834,8 +10820,8 @@
    },
    "announcements": [
     {
-     "start": "2026-10-17T14:15",
-     "end": "2026-10-17T22:00",
+     "start": "2026-10-18T06:30",
+     "end": "2026-10-18T14:15",
      "facilities": [
       "習泳池 (1)",
       "習泳池 (2)",
@@ -11152,11 +11138,20 @@
    },
    "announcements": [
     {
-     "start": "2026-10-17T14:30",
-     "end": "2026-10-17T22:00",
+     "start": "2026-10-18T06:30",
+     "end": "2026-10-18T14:30",
      "facilities": [
       "戲水池",
       "嬉水池2"
+     ],
+     "reason": "救生員不足",
+     "remarks": "不適用"
+    },
+    {
+     "start": "2026-10-18T13:00",
+     "end": "2026-10-18T14:30",
+     "facilities": [
+      "大型滑水梯"
      ],
      "reason": "救生員不足",
      "remarks": "不適用"
@@ -11794,8 +11789,17 @@
    },
    "announcements": [
     {
-     "start": "2026-10-17T14:15",
-     "end": "2026-10-17T22:00",
+     "start": "2026-10-18T06:30",
+     "end": "2026-10-18T14:15",
+     "facilities": [
+      "跳水池"
+     ],
+     "reason": "救生員不足",
+     "remarks": "不適用"
+    },
+    {
+     "start": "2026-10-18T14:15",
+     "end": "2026-10-18T22:00",
      "facilities": [
       "主池"
      ],
@@ -11803,13 +11807,49 @@
      "remarks": "不適用"
     },
     {
-     "start": "2026-10-17T14:15",
-     "end": "2026-10-17T22:00",
+     "start": "2026-10-20T17:00",
+     "end": "2026-10-20T18:00",
      "facilities": [
       "跳水池"
      ],
-     "reason": "救生員不足",
-     "remarks": "不適用"
+     "reason": "其他",
+     "remarks": "訓練班"
+    },
+    {
+     "start": "2026-10-21T19:00",
+     "end": "2026-10-21T21:00",
+     "facilities": [
+      "跳水池"
+     ],
+     "reason": "其他",
+     "remarks": "訓練班"
+    },
+    {
+     "start": "2026-10-22T17:00",
+     "end": "2026-10-22T18:00",
+     "facilities": [
+      "跳水池"
+     ],
+     "reason": "其他",
+     "remarks": "訓練班"
+    },
+    {
+     "start": "2026-10-23T17:00",
+     "end": "2026-10-23T21:00",
+     "facilities": [
+      "跳水池"
+     ],
+     "reason": "其他",
+     "remarks": "訓練班"
+    },
+    {
+     "start": "2026-10-24T10:00",
+     "end": "2026-10-24T13:00",
+     "facilities": [
+      "跳水池"
+     ],
+     "reason": "其他",
+     "remarks": "訓練班"
     },
     {
      "start": "2026-10-23T07:00",
@@ -12144,11 +12184,20 @@
    },
    "announcements": [
     {
-     "start": "2026-10-17T06:30",
-     "end": "2026-10-17T22:00",
+     "start": "2026-10-18T06:30",
+     "end": "2026-10-18T22:00",
      "facilities": [
       "習泳池",
       "大型滑水梯"
+     ],
+     "reason": "救生員不足",
+     "remarks": "不適用"
+    },
+    {
+     "start": "2026-10-18T06:30",
+     "end": "2026-10-18T14:15",
+     "facilities": [
+      "訓練池"
      ],
      "reason": "救生員不足",
      "remarks": "不適用"
@@ -12769,11 +12818,19 @@
    },
    "announcements": [
     {
-     "start": "2026-10-17T14:15",
-     "end": "2026-10-17T22:00",
+     "start": "2026-10-18T09:30",
+     "end": "2026-10-18T14:15",
      "facilities": [
-      "室外訓練池",
-      "按摩池"
+      "室內訓練池"
+     ],
+     "reason": "救生員不足",
+     "remarks": "不適用"
+    },
+    {
+     "start": "2026-10-19T06:30",
+     "end": "2026-10-19T14:15",
+     "facilities": [
+      "室內訓練池"
      ],
      "reason": "救生員不足",
      "remarks": "不適用"
@@ -13114,7 +13171,18 @@
     "fallback": "三",
     "raw": "逢星期二 (星期三 ※)"
    },
-   "announcements": [],
+   "announcements": [
+    {
+     "start": "2026-10-18T06:30",
+     "end": "2026-10-18T14:15",
+     "facilities": [
+      "訓練池",
+      "戲水池"
+     ],
+     "reason": "救生員不足",
+     "remarks": "不適用"
+    }
+   ],
    "photo": "https://www.lcsd.gov.hk/en/beach/common/graphics/SP/small/Fanling%20SP.jpg",
    "district": "北區",
    "districtEn": "North",
@@ -14705,24 +14773,6 @@
     "raw": "逢星期一 (星期三 ※)"
    },
    "announcements": [
-    {
-     "start": "2026-10-17T14:15",
-     "end": "2026-10-17T18:00",
-     "facilities": [
-      "滑水梯"
-     ],
-     "reason": "救生員不足",
-     "remarks": "不適用"
-    },
-    {
-     "start": "2026-10-17T07:30",
-     "end": "2026-10-17T22:00",
-     "facilities": [
-      "所有室內設施 (包括主池1.2米、主池2米、觀眾看台)"
-     ],
-     "reason": "游泳比賽",
-     "remarks": "主辦項目 : 第二組短池游泳比賽(第一節) 主辦機構 : 康樂及文化事務署及中國香港游泳總會聯合主辦"
-    },
     {
      "start": "2026-11-06T07:30",
      "end": "2026-11-06T19:00",
