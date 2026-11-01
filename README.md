@@ -21,6 +21,7 @@
 | 每年維修工程 | 逐池 parse `主池：5月4日至6月23日` 式範圍，支援「翌年」跨年範圍；官網時間表內的 `維修: 11.9.2026 - 31.10.2026` 逐月備註亦按日期範圍歸月 |
 | 暫停開放公告 | 官網公告表（關閉時間｜設施｜原因｜備註）逐列解析；原因欄為「其他」時由備註抽出實質原因（例：救生員人手不足） |
 | 設施層級暫停 | 公告設施名與池設施名做正規化比對（含 `嬉水池 2&3` ↔ `嬉水池 (2), 嬉水池 (3)` 展開），命中的設施標紅 |
+| 邊個設施開（卡片） | 每張卡在時段表上顯示「現時開放 主池、日光浴場／維修／暫停 訓練池、…」，設施 chip 綠=開、紅=停。判斷次序：每年維修日期 → 本月備註（`只開放X`／`除X外`）→ 生效公告；對唔上就照官網原文列出，唔會亂標 |
 | 室內／戶外標記 | 由官網「室內設施／戶外設施」分段推出每項設施屬室內或戶外 |
 | 18 區小地圖 | Leaflet + OpenStreetMap，46 個標記按狀態着色；點標記即跳去該泳池卡；18 區 chips 同步篩選地圖與列表 |
 | 天文台警告條（固定置頂） | 簡約一行常駐導覽列下方（警告／氣溫／濕度／UV／閃電），撳一下展開詳情（生效警告、發出時間、對泳池開放的影響）；資料讀 HKO `warnsum` + `rhrread`（每 5 分鐘、cache-buster）。八號或以上熱帶氣旋警告時**全部泳池覆寫為「天氣關閉」**，雷暴警告時按室內／戶外設施給出對應提示；手機自動收起次要指標且零橫向溢出 |
@@ -128,6 +129,52 @@ cron 使用時只需把 `run-sync.sh` 包一層 `~/.hermes/scripts/<name>.sh`（
 
 `run-sync.sh` 設計成 cron watchdog：成功 **零輸出**；失敗或有欄位警告才印訊息並以非零 exit 結束。
 Live 版本驗證會重試最多 6 次 × 15 秒（CF edge 需要時間收斂，一次唔中可以係快取未更新，唔應報錯）。
+
+## 🛠️ 維護速查（改嘢前先睇）
+
+### 改邊個檔案
+
+| 想改 | 改邊度 |
+|------|--------|
+| 卡片文案、狀態判斷（開放中／維修／大清潔／設施開放） | `app.js`：`statusOf()` 出狀態、`card()` 出 HTML；設施名比對係 `facMatch()` / `facStatusOf()` |
+| 版面、顏色、警告條高度 | `style.css`（高度用 `--nav-h` / `--wx-h` 變數，唔好四處寫死 px） |
+| 抓取欄位、解析規則（時間表／維修／公告／設施） | `fetch_pools.py`（`clean()` 一定要 `html.unescape`，否則 `&ndash;` 會原文顯示） |
+| 頁面骨架、載入邊啲檔案 | `index.html`（改完唔使手動改 `?v=`，`stage()` 會 bump） |
+| 公開 API 文件／用法 | `README.md` 的 Data API 段；資料本身唔好手改 |
+
+### 三個易中招
+
+1. **資料層 vs 前端層要分清**：爬蟲只寫「事實」（時間表、維修日期、公告、清潔日）；「今日此刻開唔開」一律由 `app.js` 用香港時間即時計。新狀態唔好寫入 `pools.json`。
+2. **設施名係統稱**：官網寫「室內泳池／戶外泳池／其他泳池」，本池設施叫「主池／訓練池 1」。改動 `facMatch()` 後要抽幾個統稱池（城門谷、深水埗公園、天秀路、屯門西北）逐個睇，因為佢哋最易對錯。
+3. **一個月份可以有兩條矛盾備註**（夏季＋冬季同時殘留）→ `noteInRange()` 用備註內日期範圍揀啱季節嗰條；新 parser 規則要諗埋呢個情況。
+
+### 改完三步驗證
+
+```bash
+python3 tools/check.sh                 # py_compile + node --check
+python3 sanity_data.py                 # 46 池 / 18 區 / 12 個月 / 時段合法（改資料或 parser 必跑）
+python3 -m http.server 8899            # 開 http://localhost:8899 睇 46 卡 + 390px 無橫溢
+```
+
+前端分支用 console 測試鉤，唔使等真時間／真天氣：
+
+```js
+__poolsStatus(POOLS_DATA.pools[0], new Date('2026-11-01T14:00:00'))   // 指定時間狀態（含 facs 設施清單）
+__poolsFacMatch('室內泳池', '主池', POOLS_DATA.pools[0])                // 設施名比對：true / false / ""（唔確定）
+__poolsWx({ WTS: { name: '雷暴警告' } }, {})                            // 模擬天氣警告
+```
+
+### 部署（呢個 project 的實際做法）
+
+```bash
+set -a; . ~/.hermes/.env; set +a
+export CLOUDFLARE_API_TOKEN="$CF_WORKERS_TOKEN" CLOUDFLARE_ACCOUNT_ID="$CF_ACCOUNT_ID"
+python3 fetch_pools.py --deploy
+```
+
+- 憑證喺 `~/.hermes/.env` 叫 **`CF_WORKERS_TOKEN` / `CF_ACCOUNT_ID`**，wrangler 只認 `CLOUDFLARE_*` → 要即場改名 export。
+- 只改前端（`app.js` / `style.css` / `index.html`）而唔想重抓 46 池：`python3 -c "import fetch_pools; fetch_pools.deploy()"`（用現有 `data/`，一樣會 stage + bump `?v=`）。
+- `deploy=False` 多數係 token 未 export 或 `WRANGLER_CONFIG` 未指去空檔；`deploy=True` 之後仍要 `curl https://pools.we1co.me/ | grep -o "app.js?v=[0-9]*"` 對版本，CF edge 會 cache 舊 HTML。
 
 ## 🧪 Testing
 

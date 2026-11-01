@@ -52,6 +52,91 @@
     return now >= s && now <= e;
   }
 
+  /* ── 設施層：邊個池／設施今日開、邊個維修或暫停 ── */
+  function facAreaOf(f, p) {
+    var a = (p.facAreas || {})[f];
+    if (a === "indoor" || a === "outdoor") return a;
+    var n = norm(f);
+    if (/^室內/.test(n)) return "indoor";
+    if (/^(戶外|室外)/.test(n)) return "outdoor";
+    return "";
+  }
+  /* 官方寫法 vs 本池設施名：true=命中、false=唔關事、""=講明室內／戶外但官網未標示該設施屬邊區 */
+  function facMatch(official, fac, p) {
+    var m = norm(official), f = norm(fac);
+    if (!m) return false;
+    if (/^(全場|全泳館|全池|整個泳館|全部設施|所有設施|所有泳池)$/.test(m)) return true;
+    var area = "", base = m, am = /^(室內|戶外|室外)(.*)$/.exec(m);
+    if (am) { area = am[1] === "室內" ? "indoor" : "outdoor"; base = am[2]; }
+    var mb = base.replace(/(泳池|泳館|設施)$/, ""), fb = f.replace(/^(室內|戶外|室外)/, "").replace(/(泳池|泳館|設施)$/, "");
+    var nameOk = !mb || mb === fb || mb.indexOf(fb) === 0 || fb.indexOf(mb) === 0;
+    if (!nameOk) return false;
+    if (!mb && !/池/.test(fac)) return false;   // 區域統稱（「戶外泳池維修」）唔包日光浴場等附屬設施
+    if (!area) return true;
+    var fa = facAreaOf(fac, p);
+    if (!fa) return "";
+    return fa === area;
+  }
+  function splitFacs(s) {
+    return String(s || "").split(/[、，,及和]/).map(function (x) { return x.replace(/[（(].*$/, "").trim(); }).filter(Boolean);
+  }
+  /* 本月時間表備註經常直接寫明邊個設施開：「只開放主池」「除主池外，其他泳池開放」
+     → 比維修日期更權威（尤其係官網用「室內泳池／戶外泳池」呢類統稱嘅池） */
+  function noteFacRule(note) {
+    var head = String(note || "").split("\u3000")[0].replace(/\s+/g, "");
+    var m = /^(?:只|僅)開放(.+)$/.exec(head);
+    if (m) return { mode: "only", names: splitFacs(m[1]) };
+    m = /^除(.+?)外/.exec(head);
+    if (m) return { mode: "except", names: splitFacs(m[1]) };
+    return null;
+  }
+  /* 同一月份可以同時有夏季同冬季兩條備註（例：城門谷 11 月同時有「只開放室內主池 1.11–31.3」
+     同「只開放戶外泳池 1.5–30.6」）→ 只採用日期範圍包含今日嘅一條 */
+  function noteInRange(note, now) {
+    var m = /(\d{1,2})\.(\d{1,2})(?:\.\d{2,4})?\s*[-–—]\s*(\d{1,2})\s*\.?\s*(\d{1,2})/
+      .exec(String(note || "").replace(/&ndash;|&mdash;|&#8211;|&#8212;/g, "-"));
+    if (!m) return true;
+    var s = (+m[2]) * 100 + (+m[1]), e = (+m[4]) * 100 + (+m[3]);
+    var t = (now.getMonth() + 1) * 100 + now.getDate();
+    return s <= e ? (t >= s && t <= e) : (t >= s || t <= e);
+  }
+  function facStatusOf(p, maint, anns, monthNotes, now) {
+    var list = (p.facilities || []).map(function (f) { return { name: f, why: [] }; });
+    var unknown = [], ruleUsed = false;
+    function mark(r, why) { if (r.why.indexOf(why) < 0) r.why.push(why); }
+    (maint || []).forEach(function (m) {
+      if (m.pool === "全場") { list.forEach(function (r) { mark(r, "維修"); }); return; }
+      var hit = false, unk = false;
+      list.forEach(function (r) {
+        var v = facMatch(m.pool, r.name, p);
+        if (v === true) { mark(r, "維修"); hit = true; }
+        else if (v === "") { unk = true; hit = true; }
+      });
+      if (unk) unknown.push(m.pool + " " + rangeText(m) + "（官網未標示設施屬室內／戶外）");
+      else if (!hit) unknown.push(m.pool + " " + rangeText(m));
+    });
+    (monthNotes || []).forEach(function (note) {
+      var rule = noteFacRule(note);
+      if (!rule || !noteInRange(note, now)) return;
+      ruleUsed = true;
+      list.forEach(function (r) {
+        if (!/池/.test(r.name)) return;                 // 日光浴場／更衣室等附屬設施唔受「只開放X」影響
+        var hit = rule.names.some(function (n) { var v = facMatch(n, r.name, p); return v === true || v === ""; });
+        if (rule.mode === "only" && !hit) mark(r, "維修");
+        if (rule.mode === "except" && hit) mark(r, "維修");
+      });
+    });
+    (anns || []).forEach(function (a) {
+      (a.facilities || []).forEach(function (name) {
+        if (/^(全部設施|所有設施|全場|整個|所有泳池)$/.test(norm(name))) { list.forEach(function (r) { mark(r, "暫停"); }); return; }
+        list.forEach(function (r) {
+          if (facMatch(name, r.name, p) === true) mark(r, "暫停");
+        });
+      });
+    });
+    return { list: list, unknown: ruleUsed ? [] : unknown };
+  }
+
   /* ── 泳池狀態 ── */
   function statusOf(p, now) {
     var nowM = now.getHours() * 60 + now.getMinutes();
@@ -71,6 +156,9 @@
         out.suspended.push(f);
       });
     });
+    var fs = facStatusOf(p, (p.maintenance || []).filter(function (m) { return inMaint(m, now); }), anns, (md && md.notes) || [], now);
+    out.facs = fs.list;
+    out.facUnknown = fs.unknown;
 
     // 逐節狀態
     var doneAll = true;
@@ -108,13 +196,18 @@
       out.detail.push("部分設施暫停開放（見下方通告）。");
     } else if (maintSome.length) {
       out.cls = "limited"; out.label = "部分設施維修";
-      out.detail.push("部分設施維修：" + maintSome.map(function (m) { return m.pool + "（" + rangeText(m) + "）"; }).join("、"));
     } else if (base === "open") {
       out.cls = "open"; out.label = "開放中";
     } else {
       out.cls = "soon"; out.label = "即將開始";
     }
     out.base = base;
+
+    // 逐項設施全部停 → 講「部分設施維修」會誤導（例：柴灣「全泳館」維修）
+    if (out.facs.length && !out.facs.some(function (f) { return !f.why.length; }) && out.cls !== "closed" && out.cls !== "clean") {
+      out.cls = "maint"; out.label = "維修／暫停開放";
+      if (!out.detail.length) out.detail.push("本月份全部設施暫停開放，詳見下方設施狀態。");
+    }
 
     // 八號或以上熱帶氣旋警告：康文署設施即會關閉（依「康樂及體育設施使用條件」第 10 條）
     if (tc8in(WX.sum)) {
@@ -125,7 +218,6 @@
     // 附加說明
     if (cl && cl.on && out.cls !== "clean" && base !== "closed") { out.notes.push({ cls: "clean", txt: "今日為每周大清潔日（上午10:00 至第二節完結，第三節重開）。" }); }
     else if (cl && cl.moved && cl.why) { out.notes.push({ cls: "info", txt: cl.why }); }
-    if (maintSome.length) { out.notes.push({ cls: "warn", txt: "每年維修工程（部分設施）：" + maintSome.map(function (m) { return m.pool + " " + rangeText(m); }).join("、") }); }
     (md && md.notes ? md.notes : []).forEach(function (t) { out.notes.push({ cls: "warn", txt: "本月時間表備註：" + t }); });
     return out;
   }
@@ -328,13 +420,20 @@
     var refOnly = !liveSess.length && (p.sessions || []).length > 0;
     var rows = s.rows.length ? s.rows : sessions.map(function (x) { return { label: x.label, start: x.start, end: x.end, state: "", text: "" }; });
     var id = slugOf(p);
-    var susp = s.suspended.map(norm);
-    var facs = (p.facilities || []).map(function (f) {
-      var hit = susp.some(function (x) { return x && (norm(f) === x || norm(f).indexOf(x) >= 0 || (f.split("&").some(function (t) { return norm(t) === x; }))); });
-      return '<span class="tag"' + (hit ? ' style="background:#fee2e2;border-color:#fca5a5;color:#991b1b"' : "") + ">" + esc(f) + (hit ? "（暫停）" : "") + "</span>";
+    var fsList = s.facs || (p.facilities || []).map(function (f) { return { name: f, why: [] }; });
+    var facs = fsList.map(function (x) {
+      var off = x.why.length > 0;
+      return '<span class="tag ' + (off ? "off" : "ok") + '">' + esc(x.name) + (off ? "（" + esc(x.why.join("、")) + "）" : "") + "</span>";
     }).join("");
-    var monthsNote = Object.keys(p.months || {}).filter(function (k) { return (p.months[k].notes || []).length; })
-      .map(function (k) { return k + "：" + p.months[k].notes.join("；"); }).join("　");
+    var facOpen = fsList.filter(function (x) { return !x.why.length; }).map(function (x) { return x.name; });
+    var facOff = fsList.filter(function (x) { return x.why.length; }).map(function (x) { return x.name; });
+    var facSum = fsList.length ? '<div class="facsum">' +
+      (facOpen.length ? '<span class="ok"><b>' + ((s.rows || []).some(function (r) { return r.state === "now"; }) ? "現時開放" : "開放設施") + "</b> " + esc(facOpen.join("、")) + "</span>"
+                      : '<span class="bad"><b>現時無設施開放</b></span>') +
+      (facOff.length ? '<span class="bad"><b>維修／暫停</b> ' + esc(facOff.join("、")) + "</span>" : "") +
+      ((s.facUnknown || []).length ? '<span class="amb"><b>官網另公布</b> ' + esc(s.facUnknown.join("、")) + "</span>" : "") +
+      "</div>" : "";
+    var monthsNote = ((md && md.notes) || []).filter(function (n) { return noteInRange(n, now); }).join("；");
     /* 全場維修／暫停開放／大清潔：時段表照列，但唔可以話「進行中」——泳池根本入唔到 */
     var blocked = (s.cls === "maint" || s.cls === "clean");
     var sessRows = rows.map(function (r) {
@@ -374,9 +473,9 @@
       (p.phone ? "<div><b>電話</b>　" + esc(p.phone) + "</div>" : "") +
       (p.cleaning ? "<div><b>每周大清潔</b>　" + esc(p.cleaning.raw || ("逢星期" + p.cleaning.day + (p.cleaning.fallback ? "（公眾假期改星期" + p.cleaning.fallback + "）" : ""))) + "　上午10:00 至第二節完結</div>" : "") +
       (maintAll.length ? "<div><b>每年維修工程</b>　" + maintAll.map(function (m) { return esc(m.pool + " " + rangeText(m)); }).join("、") + "</div>" : "") +
-      (monthsNote ? "<div><b>時間表備註</b>　" + esc(monthsNote) + "</div>" : "") +
+      (monthsNote ? "<div><b>本月時間表備註</b>　" + esc(monthsNote) + "</div>" : "") +
       "</div>" +
-      (facs ? '<div class="tags">' + facs + "</div>" : "") +
+      (facs ? facSum + '<div class="tags">' + facs + "</div>" : "") +
       (refOnly ? '<div class="note">本月份（' + mk + "）未列入夏季開放時間表，下表為夏季時間表，只供參考。</div>" : "") +
       (sessRows ? '<table class="sess"><thead><tr><th>時段</th><th>時間</th><th>狀態</th></tr></thead><tbody>' + sessRows + "</tbody></table>"
         : '<div class="note">本月份（' + mk + "）未有開放時間表資料。</div>") +
@@ -420,6 +519,10 @@
       });
       m.bindPopup('<b>' + esc(p.name) + '</b><span class="pill" style="background:' + c + '22;color:' + c + '">' + esc(s.label) + "</span><br>" +
         esc(p.district) + "　" + esc(p.address || "") + "<br>" +
+        (function () {
+          var ofs = (s.facs || []).filter(function (x) { return !x.why.length; }).map(function (x) { return x.name; });
+          return ofs.length ? "開放設施：" + esc(ofs.slice(0, 5).join("、")) + (ofs.length > 5 ? "…" : "") + "<br>" : "";
+        })() +
         '<a href="#" onclick="window.__poolsGoto(\'' + slugOf(p) + '\');return false;">查看詳情 ↓</a>');
       m.on("click", function () { window.__poolsGoto(slugOf(p), false); });
       markers[slugOf(p)] = m;
@@ -436,6 +539,7 @@
   };
 
   window.__poolsStatus = statusOf;       // 測試鉤：可用指定時間查詢狀態
+  window.__poolsFacMatch = facMatch;     // 測試鉤：設施名比對
   window.__poolsRender = render;
 
   document.addEventListener("DOMContentLoaded", function () {

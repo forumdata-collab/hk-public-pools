@@ -6,6 +6,7 @@
   每周大清潔行動／暫停開放公告／相片／位置圖參考
 座標：map.gov.hk locationSearch（HK1980 格網 → WGS84，EPSG:2326→4326）
 """
+import html as htmlib
 import io
 import json
 import os
@@ -86,6 +87,7 @@ def fetch(url, tries=3):
 # ───────────────────────── html helpers ─────────────────────────
 def clean(s):
     s = re.sub(r"<[^>]+>", " ", s)
+    s = htmlib.unescape(s)   # &ndash; 等實體要解碼，否則前端見到「1.11 &ndash; 31.3」
     for a, b in [("&nbsp;", " "), ("&amp;", "&"), ("&quot;", '"'), ("&#39;", "'"), ("&lt;", "<"), ("&gt;", ">")]:
         s = s.replace(a, b)
     return re.sub(r"\s+", " ", s).strip()
@@ -270,6 +272,17 @@ def note_text(txt):
     return ""
 
 
+def first_day_group(txt):
+    """時間表按星期分組（同一格出現多個「第一節」）→ 只取第一組做本月時段，
+    其餘（如「星期五：第一、二節暫停」）交返做備註，避免時段被合併成 20:30-24:00 之類。"""
+    idx = [m.start() for m in re.finditer(r"第[一1]節", txt)]
+    if len(idx) < 2:
+        return txt, ""
+    m = re.search(r"星期[一二三四五六日]", txt[idx[0]:idx[1]])   # 第二組嘅日子標題（唔好撞到括號內文）
+    cut = idx[0] + m.start() if m else idx[1]
+    return txt[:cut], txt[cut:]
+
+
 def parse_month_table(panel, sec_tc, sec_en):
     """逐月開放時間表 → {'十月': {'sessions':[...], 'breaks':[...], 'notes':[...]}}
 
@@ -298,13 +311,19 @@ def parse_month_table(panel, sec_tc, sec_en):
             if txt:
                 cells.append(txt)
     sessions, breaks = [], []
+    extra_note = ""
     for txt in cells:
         if sessions:
             break
         if "節" in txt or re.search(r"\d{1,2}\s*時[^。]{0,20}至[^。]{0,20}\d{1,2}\s*時", txt):
-            sessions = parse_sessions_zh(txt)
-            breaks = parse_breaks_zh(txt)
+            head, extra = first_day_group(txt)      # 有泳池按星期分組（梅窩：星期五／星期四及六）
+            sessions = parse_sessions_zh(head)
+            breaks = parse_breaks_zh(head)
+            if extra:
+                extra_note = "按星期不同：" + clean(re.sub(r"[（(][^）)]*[）)]", " ", extra))[:180]
     notes = []            # [(text, months|None)]
+    if extra_note:
+        notes.append((extra_note, None))
     for txt in cells:
         if "維修" in txt or DATE_SPAN.search(txt):
             t = note_text(txt)
@@ -318,33 +337,57 @@ def parse_month_table(panel, sec_tc, sec_en):
 
 
 # ───────────────────────── sections ─────────────────────────
+MAINT_STMT = re.compile(
+    r"([^：﹕]{1,60}?)\s*[：﹕]\s*(?:(\d{4})\s*年\s*)?(\d{1,2})\s*月\s*(\d{1,2})\s*日\s*至\s*"
+    r"(翌年|(\d{4})\s*年)?\s*(\d{1,2})\s*月\s*(\d{1,2})\s*日")
+
+
+def _maint_label(raw):
+    s = re.sub(r"[（(][^）)]*[）)]", "", raw)          # 剝走括號內池名
+    s = s.replace(" ", "").replace("\u3000", "")
+    s = re.sub(r"^(配合每年維修工程的暫停開放時間|暫停開放時間|維修)", "", s)
+    s = re.sub(r"(維修|暫停開放)$", "", s)
+    return s.strip("、，,:：.。")
+
+
 def parse_annual_maintenance(panel):
-    """配合每年維修工程的暫停開放時間：'主池：5月4日至6月23日' / '11月1日至翌年3月31日'"""
+    """配合每年維修工程的暫停開放時間：'主池：5月4日至6月23日' / '戶外泳池：11 月 1 日至翌年 4 月 15 日'
+
+    一段可以有多組「池名：日期範圍」（觀塘/九龍公園/屯門/城門谷…），亦會有全角冒號「﹕」、
+    日期中間有空格、年份前綴（2026年）。要逐組掃，唔可以只 parse 第一組。
+    """
     i = panel.find("配合每年維修工程")
     if i < 0:
         return []
     seg = panel[i:i + 4000]
     seg = seg[:seg.find("每周大清潔")] if "每周大清潔" in seg else seg
     text = clean(seg).replace("配合每年維修工程的暫停開放時間", "")
+    if "-->" in text:                                   # LCSD 頁面殘留註解（粉嶺「2014年…-->」）
+        text = text.split("-->", 1)[1]
+    text = text.replace(":", "：").replace("﹕", "：")
     out, seen = [], set()
-    pat = re.compile(r"([\u4e00-\u9fff、，, ]+(?:池|場))\s*(?:\([^)]*\))?\s*[：:]\s*(\d{1,2})月(\d{1,2})日\s*至\s*(翌年)?\s*(\d{1,2})月(\d{1,2})日")
-    for m in pat.finditer(text):
-        for pool in re.split(r"[、，,]", m.group(1)):
-            pool = re.sub(r"^[日\s]+", "", pool.strip())      # 剝走前綴殘字（"日 室內副池"）
-            pool = {"全池": "全場"}.get(pool, pool)
-            if not pool.endswith(("池", "場")) or len(pool) > 8:
-                continue
-            key = (pool, m.group(2), m.group(3), m.group(5), m.group(6))
-            if key in seen:
-                continue
-            seen.add(key)
-            out.append({"pool": pool, "startMonth": int(m.group(2)), "startDay": int(m.group(3)),
-                        "endMonth": int(m.group(5)), "endDay": int(m.group(6)), "nextYear": bool(m.group(4))})
+
+    def add(pool, y1, sm, sd, yy, y2, em, ed):
+        pool = {"全池": "全場"}.get(pool, pool)
+        if not pool.endswith(("池", "場", "館")) or len(pool) > 10:
+            return
+        key = (pool, sm, sd, em, ed)
+        if key in seen:
+            return
+        seen.add(key)
+        next_year = bool(yy) or (bool(y1) and bool(y2) and int(y2) > int(y1)) or (sm > em)
+        out.append({"pool": pool, "startMonth": int(sm), "startDay": int(sd),
+                    "endMonth": int(em), "endDay": int(ed), "nextYear": next_year})
+
+    for m in MAINT_STMT.finditer(text):
+        label = _maint_label(m.group(1))
+        for pool in re.split(r"[、，,]|及", label):
+            pool = re.sub(r"^[日\s]+", "", pool.strip())
+            add(pool, m.group(2), m.group(3), m.group(4), m.group(5), m.group(6), m.group(7), m.group(8))
     if not out:
-        m2 = re.search(r"(\d{1,2})月(\d{1,2})日\s*至\s*(翌年)?\s*(\d{1,2})月(\d{1,2})日", text)
+        m2 = re.search(r"(\d{1,2})\s*月\s*(\d{1,2})\s*日\s*至\s*(翌年)?\s*(\d{1,2})\s*月\s*(\d{1,2})\s*日", text)
         if m2:
-            out.append({"pool": "全場", "startMonth": int(m2.group(1)), "startDay": int(m2.group(2)),
-                        "endMonth": int(m2.group(4)), "endDay": int(m2.group(5)), "nextYear": bool(m2.group(3))})
+            add("全場", None, m2.group(1), m2.group(2), m2.group(3), None, m2.group(4), m2.group(5))
     return out
 
 
@@ -463,6 +506,17 @@ def parse_pool(panel_tc, panel_en):
     name = clean(re.search(r"<h3[^>]*>(.*?)</h3>", panel_tc, re.S).group(1))
     name_en = clean(re.search(r"<h3[^>]*>(.*?)</h3>", panel_en, re.S).group(1)) if re.search(r"<h3[^>]*>(.*?)</h3>", panel_en, re.S) else name
     months = parse_month_table(panel_tc, "開放時間表", "Opening Schedule")
+    # 結構不變量：頁面有幾多張「開放時間表」就要 parse 到幾多張（新增表格冇 parse = 靜默漏資料）
+    tables_seen = panel_tc.count("開放時間表")   # 46 池現時每池 2 張（夏季＋冬季）
+    tables_parsed = 1 if months else 0
+    # 冬季時間表係另一個獨立表格（十一月–五月），唔 parse 就會令 11–4 月全部誤報「休館」
+    if "冬季開放時間表" in panel_tc:
+        winter = parse_month_table(panel_tc, "冬季開放時間表", "Winter Opening Schedule")
+        tables_parsed += 1 if winter else 0
+        for mon, v in winter.items():
+            v["notes"] = [re.sub(r"(\d{1,2})\.(\d{1,2})\.\d{4}", r"\1.\2", n).strip()
+                          for n in v.get("notes", [])]
+            months[mon] = v
     # 代表時段 = 最多月份使用嘅一組
     from collections import Counter
     sig = Counter(json.dumps((m.get("sessions"), m.get("breaks"))) for m in months.values() if m.get("sessions"))
@@ -480,6 +534,7 @@ def parse_pool(panel_tc, panel_en):
         "facAreas": fac_areas,
         "facilitiesRaw": clean(raw_cell(panel_tc, "設施"))[:500],
         "months": months,
+        "_tables": {"seen": tables_seen, "parsed": tables_parsed},
         "sessions": sessions,
         "breaks": breaks,
         "maintenance": parse_annual_maintenance(panel_tc),
@@ -562,6 +617,9 @@ def scrape():
                 qa.append(f"{d_tc}/{d['name']}: 設施 parse 失敗")
             if not d["sessions"]:
                 qa.append(f"{d_tc}/{d['name']}: 時段 parse 失敗（months={len(d['months'])}）")
+            tb = d.pop("_tables", None) or {}
+            if tb.get("seen", 0) > tb.get("parsed", 0):
+                qa.append(f"{d_tc}/{d['name']}: 有 {tb['seen'] - tb['parsed']} 張開放時間表未 parse（結構改動？）")
             if not d["cleaning"]:
                 qa.append(f"{d_tc}/{d['name']}: 大清潔日 parse 失敗")
             if not geo:
@@ -655,5 +713,14 @@ if __name__ == "__main__":
             print("  -", q)
     else:
         print("QA: 全部欄位齊")
+    # 部署前資料體檢（冬季表缺失／時段合併／欄位變空 一律唔准上線）
+    import sanity_data
+    problems = sanity_data.check(data)
+    if problems:
+        print(f"❌ SANITY FAIL {len(problems)} 項 — 唔會部署")
+        for b in problems[:20]:
+            print("  -", b)
+        sys.exit(1)
+    print("SANITY: OK")
     if "--deploy" in sys.argv:
         deploy()
