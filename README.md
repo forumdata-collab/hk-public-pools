@@ -183,6 +183,8 @@ python3 fetch_pools.py --deploy
 python3 tools/qa_offline.py            # 用 cache/ 的 HTML 重跑 parser：46/46 需有設施／時段／清潔日，0 警告
 python3 tools/qa_offline.py --fetch    # 冇 cache 時可即場抓取（約 30 秒）
 bash tools/check.sh                    # py_compile + node --check（CI 同款，離線可跑）
+node tools/audit_matrix.js             # 用真 app.js 掃 46 池 × 400 日狀態矩陣（靜默 = 綠）
+bash ~/.hermes/scripts/pools-monthly-audit.sh   # 每月 1 號全套：sanity → 官網對帳 → 矩陣 → 跨站
 ```
 
 前端另備兩個測試鉤，可在瀏覽器 console 直接驗時間／天氣分支：
