@@ -9,7 +9,8 @@
   var MN_SHORT = ["1月", "2月", "3月", "4月", "5月", "6月", "7月", "8月", "9月", "10月", "11月", "12月"];
   var STATE = { filter: "all", open: new Set(), html: {}, built: false, wxOpen: false };
 
-  function hkNow() { return new Date(new Date().toLocaleString("en-US", { timeZone: "Asia/Hong_Kong" })); }
+  var NOW_OVERRIDE = null;   // 測試鉤：__poolsSetNow() 可固定「現在」時間
+  function hkNow() { return NOW_OVERRIDE ? new Date(NOW_OVERRIDE.getTime()) : new Date(new Date().toLocaleString("en-US", { timeZone: "Asia/Hong_Kong" })); }
   function p2(n) { return (n < 10 ? "0" : "") + n; }
   function ymd(d) { return d.getFullYear() + "-" + p2(d.getMonth() + 1) + "-" + p2(d.getDate()); }
   function hm(m) { return p2(Math.floor(m / 60)) + ":" + p2(m % 60); }
@@ -202,6 +203,8 @@
       out.cls = "soon"; out.label = "即將開始";
     }
     out.base = base;
+    out.cleanDay = !!(cl && cl.on && sessions.length);           // 今日係大清潔日
+    out.cleanEnd = sessions.length ? sessions[Math.min(1, sessions.length - 1)].end : "";  // 大清潔到第二節完結
 
     // 逐項設施全部停 → 講「部分設施維修」會誤導（例：柴灣「全泳館」維修）
     if (out.facs.length && !out.facs.some(function (f) { return !f.why.length; }) && out.cls !== "closed" && out.cls !== "clean" && out.cls !== "maint") {
@@ -436,10 +439,19 @@
     /* 全場維修／暫停開放：時段表照列，但全部未開始／進行中嘅節都要寫「暫停」——泳池根本入唔到。
        大清潔只影響第一至第二節，第三節照開，所以只蓋住「進行中」嗰節。 */
     var maintBlock = (s.cls === "maint");
+    /* 大清潔日：上午10:00 至第二節完結，頭兩節都受影響（第三節重開）。
+       以前只蓋「進行中」嗰節 → 第二節會照寫「即將開始」。 */
+    function cleanBlocks(r) {
+      return s.cleanDay && toMin(r.end) > 600 && toMin(r.start) < toMin(s.cleanEnd);
+    }
     var sessRows = rows.map(function (r) {
       var cls = r.state === "now" ? "now" : (r.state === "over" ? "over" : "");
-      if (r.state !== "over" && (maintBlock || (s.cls === "clean" && r.state === "now"))) {
-        return '<tr class="over"><td>' + esc(r.label) + '</td><td>' + esc(r.start) + " – " + esc(r.end) + '</td><td>暫停（' + (s.cls === "clean" ? "大清潔" : "維修") + '）</td></tr>';
+      if (r.state !== "over" && maintBlock) {
+        return '<tr class="over"><td>' + esc(r.label) + '</td><td>' + esc(r.start) + " – " + esc(r.end) + '</td><td>暫停（維修）</td></tr>';
+      }
+      if (r.state !== "over" && cleanBlocks(r)) {
+        var pre = toMin(r.start) < 600 && (now.getHours() * 60 + now.getMinutes()) < 600 ? "10:00 起" : "";
+        return '<tr class="over"><td>' + esc(r.label) + '</td><td>' + esc(r.start) + " – " + esc(r.end) + '</td><td>' + pre + '暫停（大清潔）</td></tr>';
       }
       var rem = "";
       if (r.state === "now") {
@@ -539,6 +551,7 @@
 
   window.__poolsStatus = statusOf;       // 測試鉤：可用指定時間查詢狀態
   window.__poolsFacMatch = facMatch;     // 測試鉤：設施名比對
+  window.__poolsSetNow = function (d) { NOW_OVERRIDE = d ? new Date(d) : null; render(); };  // 測試鉤：固定「現在」睇卡片
   window.__poolsRender = render;
 
   document.addEventListener("DOMContentLoaded", function () {

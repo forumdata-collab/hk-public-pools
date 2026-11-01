@@ -160,6 +160,7 @@ python3 -m http.server 8899            # 開 http://localhost:8899 睇 46 卡 + 
 
 ```js
 __poolsStatus(POOLS_DATA.pools[0], new Date('2026-11-01T14:00:00'))   // 指定時間狀態（含 facs 設施清單）
+__poolsSetNow(new Date('2027-04-06T10:30:00'))                         // 固定「現在」睇卡片（大清潔／維修／收館），傳 null 還原
 __poolsFacMatch('室內泳池', '主池', POOLS_DATA.pools[0])                // 設施名比對：true / false / ""（唔確定）
 __poolsWx({ WTS: { name: '雷暴警告' } }, {})                            // 模擬天氣警告
 ```
