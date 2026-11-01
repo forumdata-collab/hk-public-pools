@@ -145,8 +145,9 @@
     var sessions = (md && md.sessions && md.sessions.length) ? md.sessions : [];
     var out = { cls: "closed", label: "休館", detail: [], rows: [], suspended: [], anns: [], notes: [] };
 
-    var maintAll = (p.maintenance || []).filter(function (m) { return m.pool === "全場" && inMaint(m, now); });
-    var maintSome = (p.maintenance || []).filter(function (m) { return m.pool !== "全場" && inMaint(m, now); });
+    var WHOLE = /^(全場|全泳館|全池|整個泳館)$/;
+    var maintAll = (p.maintenance || []).filter(function (m) { return WHOLE.test(norm(m.pool)) && inMaint(m, now); });
+    var maintSome = (p.maintenance || []).filter(function (m) { return !WHOLE.test(norm(m.pool)) && inMaint(m, now); });
     var cl = cleaningInfo(p.cleaning, now);
     var anns = (p.announcements || []).filter(function (a) { return annActive(a, now); });
     out.anns = anns;
@@ -180,7 +181,6 @@
     // 整體狀態（全場性嘅事優先過節次狀態；休館則蓋過局部通告）
     if (maintAll.length || out.fullSuspend) {
       out.cls = "maint"; out.label = maintAll.length && !out.fullSuspend ? "維修中" : "暫停開放";
-      if (maintAll.length) out.detail.push("每年維修工程：" + maintAll.map(rangeText).join("、"));
     } else if (sessions.length === 0) {
       out.cls = "closed"; out.label = "休館";
       out.detail.push("本月份未列入開放時間表（" + mk + "），請看官方頁面確認季節安排。");
@@ -204,7 +204,7 @@
     out.base = base;
 
     // 逐項設施全部停 → 講「部分設施維修」會誤導（例：柴灣「全泳館」維修）
-    if (out.facs.length && !out.facs.some(function (f) { return !f.why.length; }) && out.cls !== "closed" && out.cls !== "clean") {
+    if (out.facs.length && !out.facs.some(function (f) { return !f.why.length; }) && out.cls !== "closed" && out.cls !== "clean" && out.cls !== "maint") {
       out.cls = "maint"; out.label = "維修／暫停開放";
       if (!out.detail.length) out.detail.push("本月份全部設施暫停開放，詳見下方設施狀態。");
     }
@@ -218,7 +218,6 @@
     // 附加說明
     if (cl && cl.on && out.cls !== "clean" && base !== "closed") { out.notes.push({ cls: "clean", txt: "今日為每周大清潔日（上午10:00 至第二節完結，第三節重開）。" }); }
     else if (cl && cl.moved && cl.why) { out.notes.push({ cls: "info", txt: cl.why }); }
-    (md && md.notes ? md.notes : []).forEach(function (t) { out.notes.push({ cls: "warn", txt: "本月時間表備註：" + t }); });
     return out;
   }
   function rangeText(m) {
@@ -430,17 +429,17 @@
     var facSum = fsList.length ? '<div class="facsum">' +
       (facOpen.length ? '<span class="ok"><b>' + ((s.rows || []).some(function (r) { return r.state === "now"; }) ? "現時開放" : "開放設施") + "</b> " + esc(facOpen.join("、")) + "</span>"
                       : '<span class="bad"><b>現時無設施開放</b></span>') +
-      (facOff.length ? '<span class="bad"><b>維修／暫停</b> ' + esc(facOff.join("、")) + "</span>" : "") +
+      ((facOff.length && s.cls !== "maint") ? '<span class="bad"><b>維修／暫停</b> ' + esc(facOff.join("、")) + "</span>" : "") +
       ((s.facUnknown || []).length ? '<span class="amb"><b>官網另公布</b> ' + esc(s.facUnknown.join("、")) + "</span>" : "") +
       "</div>" : "";
     var monthsNote = ((md && md.notes) || []).filter(function (n) { return noteInRange(n, now); }).join("；");
-    /* 全場維修／暫停開放／大清潔：時段表照列，但唔可以話「進行中」——泳池根本入唔到 */
-    var blocked = (s.cls === "maint" || s.cls === "clean");
+    /* 全場維修／暫停開放：時段表照列，但全部未開始／進行中嘅節都要寫「暫停」——泳池根本入唔到。
+       大清潔只影響第一至第二節，第三節照開，所以只蓋住「進行中」嗰節。 */
+    var maintBlock = (s.cls === "maint");
     var sessRows = rows.map(function (r) {
       var cls = r.state === "now" ? "now" : (r.state === "over" ? "over" : "");
-      if (r.state === "now" && blocked) {
-        cls = "over";
-        return '<tr class="' + cls + '"><td>' + esc(r.label) + '</td><td>' + esc(r.start) + " – " + esc(r.end) + '</td><td>暫停（' + (s.cls === "clean" ? "大清潔" : "維修") + '）</td></tr>';
+      if (r.state !== "over" && (maintBlock || (s.cls === "clean" && r.state === "now"))) {
+        return '<tr class="over"><td>' + esc(r.label) + '</td><td>' + esc(r.start) + " – " + esc(r.end) + '</td><td>暫停（' + (s.cls === "clean" ? "大清潔" : "維修") + '）</td></tr>';
       }
       var rem = "";
       if (r.state === "now") {
