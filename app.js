@@ -34,19 +34,32 @@
     var mon = new Date(now.getTime()); mon.setDate(now.getDate() - off);
     return mon;
   }
+  /* 大清潔時段：多數池係 10:00 至第二節完結；灣仔例外（官網寫「上午10時至下午4時」） */
+  function zhTime(h, mer, mi) {
+    var n = +h;
+    if ((mer === "下午" || mer === "晚上" || mer === "午") && n < 12) n += 12;
+    if (mer === "中午" && n < 12) n = 12;
+    return p2(n) + ":" + p2(mi ? +mi : 0);
+  }
+  function cleanWindow(raw) {
+    var m = /(上午|中午|下午|晚上)?\s*(\d{1,2})\s*時(?:\s*(\d{1,2})\s*分)?\s*至\s*(上午|中午|下午|晚上)?\s*(\d{1,2})\s*時(?:\s*(\d{1,2})\s*分)?/.exec(String(raw || ""));
+    if (!m) return null;
+    return { from: zhTime(m[2], m[1], m[3]), to: zhTime(m[5], m[4] || m[1], m[6]) };
+  }
   function cleaningInfo(cl, now) {
     if (!cl || !cl.day) return null;
+    var win = (cl.from && cl.to) ? { from: cl.from, to: cl.to } : (cleanWindow(cl.raw) || null);
     var main = WD[cl.day], fb = cl.fallback ? WD[cl.fallback] : null;
     var mon = weekRange(now);
     var mainDate = new Date(mon.getTime()); mainDate.setDate(mon.getDate() + ((main + 6) % 7));
     var mainHol = HOL.has(ymd(mainDate));
     if (mainHol && fb !== null) {
       var fbDate = new Date(mon.getTime()); fbDate.setDate(mon.getDate() + ((fb + 6) % 7));
-      if (!HOL.has(ymd(fbDate)) && now.getDay() === fb) return { on: true, moved: true, day: cl.fallback, why: "本週原定星期" + cl.day + "為公眾假期" };
-      return { on: false, moved: true, day: cl.fallback, why: "本週清潔日改為星期" + cl.fallback + "（原定星期" + cl.day + "為公眾假期）" };
+      if (!HOL.has(ymd(fbDate)) && now.getDay() === fb) return { on: true, moved: true, day: cl.fallback, why: "本週原定星期" + cl.day + "為公眾假期", win: win };
+      return { on: false, moved: true, day: cl.fallback, why: "本週清潔日改為星期" + cl.fallback + "（原定星期" + cl.day + "為公眾假期）", win: win };
     }
-    if (now.getDay() === main) return { on: true, moved: false, day: cl.day, why: "" };
-    return { on: false, moved: false, day: cl.day, why: "" };
+    if (now.getDay() === main) return { on: true, moved: false, day: cl.day, why: "", win: win };
+    return { on: false, moved: false, day: cl.day, why: "", win: win };
   }
   function annActive(a, now) {
     var s = new Date(a.start.replace("T", " ").replace(/-/g, "/")), e = new Date(a.end.replace("T", " ").replace(/-/g, "/"));
@@ -177,7 +190,9 @@
     if (nowM < 300) { base = "closed"; }
     else if (out.rows.some(function (r) { return r.state === "now"; })) { base = "open"; }
     else if (!doneAll) { base = "soon"; }
-    var cleanNow = !!(cl && cl.on && sessions.length && nowM >= 600 && nowM < toMin(sessions[Math.min(1, sessions.length - 1)].end));
+    var cleanFrom = (cl && cl.win && cl.win.from) || "10:00";
+    var cleanEnd = (cl && cl.win && cl.win.to) || (sessions.length ? sessions[Math.min(1, sessions.length - 1)].end : "");
+    var cleanNow = !!(cl && cl.on && sessions.length && cleanEnd && nowM >= toMin(cleanFrom) && nowM < toMin(cleanEnd));
 
     // 整體狀態（全場性嘅事優先過節次狀態；休館則蓋過局部通告）
     if (maintAll.length || out.fullSuspend) {
@@ -187,7 +202,7 @@
       out.detail.push("本月份未列入開放時間表（" + mk + "），請看官方頁面確認季節安排。");
     } else if (cleanNow) {
       out.cls = "clean"; out.label = "大清潔中";
-      out.detail.push("每周大清潔：上午10:00 至第二節完結，同日第三節重開。");
+      out.detail.push("每周大清潔：" + cleanFrom + " 至 " + cleanEnd + "，之後重開。");
     } else if (base === "closed") {
       out.cls = "closed"; out.label = "休館";
       if (nowM < 300) out.detail.push("凌晨休館時段：今日首節 " + (sessions.length ? sessions[0].start : "—") + " 開始。");
@@ -204,7 +219,8 @@
     }
     out.base = base;
     out.cleanDay = !!(cl && cl.on && sessions.length);           // 今日係大清潔日
-    out.cleanEnd = sessions.length ? sessions[Math.min(1, sessions.length - 1)].end : "";  // 大清潔到第二節完結
+    out.cleanFrom = cleanFrom;
+    out.cleanEnd = cleanEnd;                                     // 大清潔去到幾點（多數 = 第二節完結）
 
     // 逐項設施全部停 → 講「部分設施維修」會誤導（例：柴灣「全泳館」維修）
     if (out.facs.length && !out.facs.some(function (f) { return !f.why.length; }) && out.cls !== "closed" && out.cls !== "clean" && out.cls !== "maint") {
@@ -219,7 +235,7 @@
     }
 
     // 附加說明
-    if (cl && cl.on && out.cls !== "clean" && base !== "closed") { out.notes.push({ cls: "clean", txt: "今日為每周大清潔日（上午10:00 至第二節完結，第三節重開）。" }); }
+    if (cl && cl.on && out.cls !== "clean" && base !== "closed") { out.notes.push({ cls: "clean", txt: "今日為每周大清潔日（" + cleanFrom + " 至 " + cleanEnd + "，之後重開）。" }); }
     else if (cl && cl.moved && cl.why) { out.notes.push({ cls: "info", txt: cl.why }); }
     return out;
   }
@@ -436,29 +452,41 @@
       ((s.facUnknown || []).length ? '<span class="amb"><b>官網另公布</b> ' + esc(s.facUnknown.join("、")) + "</span>" : "") +
       "</div>" : "";
     var monthsNote = ((md && md.notes) || []).filter(function (n) { return noteInRange(n, now); }).join("；");
+    var cleanMeta = "";
+    if (p.cleaning) {
+      var craw = p.cleaning.raw || ("逢星期" + p.cleaning.day + (p.cleaning.fallback ? "（公眾假期改星期" + p.cleaning.fallback + "）" : ""));
+      cleanMeta = craw + (cleanWindow(craw) ? "" : "　10:00 至第二節完結");
+    }
     /* 全場維修／暫停開放：時段表照列，但全部未開始／進行中嘅節都要寫「暫停」——泳池根本入唔到。
        大清潔只影響第一至第二節，第三節照開，所以只蓋住「進行中」嗰節。 */
     var maintBlock = (s.cls === "maint");
     /* 大清潔日：上午10:00 至第二節完結，頭兩節都受影響（第三節重開）。
        以前只蓋「進行中」嗰節 → 第二節會照寫「即將開始」。 */
     function cleanBlocks(r) {
-      return s.cleanDay && toMin(r.end) > 600 && toMin(r.start) < toMin(s.cleanEnd);
+      return s.cleanDay && toMin(r.end) > toMin(s.cleanFrom || "10:00") && toMin(r.start) < toMin(s.cleanEnd);
+    }
+    function cleanLabel(r) {
+      var fs = toMin(s.cleanFrom || "10:00"), ts = toMin(s.cleanEnd);
+      if (toMin(r.start) < fs && toMin(r.end) > ts) return (s.cleanFrom || "10:00") + "–" + s.cleanEnd + " 暫停（大清潔）";
+      if (toMin(r.start) < fs) return (s.cleanFrom || "10:00") + " 起暫停（大清潔）";
+      return "暫停（大清潔）";
     }
     var sessRows = rows.map(function (r) {
       var cls = r.state === "now" ? "now" : (r.state === "over" ? "over" : "");
+      var nowM = now.getHours() * 60 + now.getMinutes();
       if (r.state !== "over" && maintBlock) {
         return '<tr class="over"><td>' + esc(r.label) + '</td><td>' + esc(r.start) + " – " + esc(r.end) + '</td><td>暫停（維修）</td></tr>';
       }
-      if (r.state !== "over" && cleanBlocks(r)) {
-        var pre = toMin(r.start) < 600 && (now.getHours() * 60 + now.getMinutes()) < 600 ? "10:00 起" : "";
-        return '<tr class="over"><td>' + esc(r.label) + '</td><td>' + esc(r.start) + " – " + esc(r.end) + '</td><td>' + pre + '暫停（大清潔）</td></tr>';
+      if (r.state !== "over" && cleanBlocks(r) && nowM >= toMin(s.cleanFrom || "10:00") && nowM < toMin(s.cleanEnd)) {
+        return '<tr class="over"><td>' + esc(r.label) + '</td><td>' + esc(r.start) + " – " + esc(r.end) + '</td><td>' + cleanLabel(r) + '</td></tr>';
       }
       var rem = "";
       if (r.state === "now") {
         var left = toMin(r.end) - (now.getHours() * 60 + now.getMinutes());
         rem = left > 0 ? "（剩 " + Math.floor(left / 60) + " 小時 " + (left % 60) + " 分）" : "";
       }
-      return '<tr class="' + cls + '"><td>' + esc(r.label) + '</td><td>' + esc(r.start) + " – " + esc(r.end) + "</td><td>" + esc(r.text) + rem + "</td></tr>";
+      if (r.state !== "over" && cleanBlocks(r)) rem += "（" + (s.cleanFrom || "10:00") + "–" + s.cleanEnd + " 大清潔）";
+      return '<tr class="' + cls + '"><td>' + esc(r.label) + '</td><td>' + esc(r.start) + " – " + esc(r.end) + '</td><td>' + esc(r.text) + rem + "</td></tr>";
     }).join("");
     var anns = (s.anns || []).map(function (a, i) {
       var aid = id + "-a" + i;
@@ -482,7 +510,7 @@
       '<span class="en">' + esc(p.nameEn || "") + "</span></h4>" +
       '<div class="meta"><div><b>地址</b>　' + esc(p.address || "—") + "</div>" +
       (p.phone ? "<div><b>電話</b>　" + esc(p.phone) + "</div>" : "") +
-      (p.cleaning ? "<div><b>每周大清潔</b>　" + esc(p.cleaning.raw || ("逢星期" + p.cleaning.day + (p.cleaning.fallback ? "（公眾假期改星期" + p.cleaning.fallback + "）" : ""))) + "　上午10:00 至第二節完結</div>" : "") +
+      (cleanMeta ? "<div><b>每周大清潔</b>　" + esc(cleanMeta) + "</div>" : "") +
       (maintAll.length ? "<div><b>每年維修工程</b>　" + maintAll.map(function (m) { return esc(m.pool + " " + rangeText(m)); }).join("、") + "</div>" : "") +
       (monthsNote ? "<div><b>本月時間表備註</b>　" + esc(monthsNote) + "</div>" : "") +
       "</div>" +

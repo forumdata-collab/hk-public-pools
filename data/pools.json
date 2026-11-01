@@ -1,6 +1,6 @@
 {
  "schemaVersion": 1,
- "generatedAt": "2026-11-01T06:20:58Z",
+ "generatedAt": "2026-11-01T08:42:22Z",
  "source": "康樂及文化事務署（LCSD）公眾游泳池網頁",
  "sourceUrls": {
   "pools": "https://www.lcsd.gov.hk/clpss/tc/webApp/Swimming.do?dist=locN",
@@ -563,7 +563,9 @@
    "cleaning": {
     "day": "三",
     "fallback": "五",
-    "raw": "逢星期三 (星期五 ※)"
+    "raw": "逢星期三 (星期五 ※)",
+    "from": "",
+    "to": ""
    },
    "announcements": [],
    "photo": "https://www.lcsd.gov.hk/en/beach/common/graphics/SP/small/Island%20East%20SP.jpg",
@@ -1048,7 +1050,9 @@
    "cleaning": {
     "day": "二",
     "fallback": "三",
-    "raw": "逢星期二 (星期三 ※)"
+    "raw": "逢星期二 (星期三 ※)",
+    "from": "",
+    "to": ""
    },
    "announcements": [],
    "photo": "https://www.lcsd.gov.hk/en/beach/common/graphics/SP/small/Chai%20Wan%20SP.jpg",
@@ -1527,7 +1531,9 @@
    "cleaning": {
     "day": "四",
     "fallback": "一",
-    "raw": "逢星期四 (星期一 ※)"
+    "raw": "逢星期四 (星期一 ※)",
+    "from": "",
+    "to": ""
    },
    "announcements": [],
    "photo": "https://www.lcsd.gov.hk/en/beach/common/graphics/SP/small/Siu%20Sai%20Wan%20SP.jpg",
@@ -1725,7 +1731,9 @@
    "cleaning": {
     "day": "五",
     "fallback": "",
-    "raw": "逢星期五 (上午10時至下午4時)"
+    "raw": "逢星期五 (上午10時至下午4時)",
+    "from": "10:00",
+    "to": "16:00"
    },
    "announcements": [],
    "photo": "https://www.lcsd.gov.hk/en/beach/common/graphics/SP/small/Wan%20Chai%20SP.jpg",
@@ -2240,7 +2248,9 @@
    "cleaning": {
     "day": "三",
     "fallback": "二",
-    "raw": "逢星期三 (星期二 ※)"
+    "raw": "逢星期三 (星期二 ※)",
+    "from": "",
+    "to": ""
    },
    "announcements": [],
    "photo": "https://www.lcsd.gov.hk/en/beach/common/graphics/SP/small/Morrison%20Hill%20SP.jpg",
@@ -2303,7 +2313,7 @@
       }
      ],
      "notes": [
-      "維修 13.2 &ndash; 14.4"
+      "維修 13.2 – 14.4"
      ]
     },
     "五月": {
@@ -2337,9 +2347,7 @@
        "end": "18:00"
       }
      ],
-     "notes": [
-      "維修 13.2 &ndash; 14.4"
-     ]
+     "notes": []
     },
     "六月": {
      "sessions": [
@@ -2537,9 +2545,7 @@
        "end": "18:00"
       }
      ],
-     "notes": [
-      "維修 13.2 &ndash; 14.4"
-     ]
+     "notes": []
     },
     "十二月": {
      "sessions": [
@@ -2572,9 +2578,7 @@
        "end": "18:00"
       }
      ],
-     "notes": [
-      "維修 13.2 &ndash; 14.4"
-     ]
+     "notes": []
     },
     "一月": {
      "sessions": [
@@ -2607,9 +2611,7 @@
        "end": "18:00"
       }
      ],
-     "notes": [
-      "維修 13.2 &ndash; 14.4"
-     ]
+     "notes": []
     },
     "二月": {
      "sessions": [
@@ -2643,7 +2645,7 @@
       }
      ],
      "notes": [
-      "維修 13.2 &ndash; 14.4"
+      "維修 13.2 – 14.4"
      ]
     },
     "三月": {
@@ -2678,7 +2680,7 @@
       }
      ],
      "notes": [
-      "維修 13.2 &ndash; 14.4"
+      "維修 13.2 – 14.4"
      ]
     }
    },
@@ -2725,7 +2727,9 @@
    "cleaning": {
     "day": "一",
     "fallback": "五",
-    "raw": "逢星期一 (星期五 ※)"
+    "raw": "逢星期一 (星期五 ※)",
+    "from": "",
+    "to": ""
    },
    "announcements": [
     {
@@ -3396,7 +3400,9 @@
    "cleaning": {
     "day": "三",
     "fallback": "四",
-    "raw": "逢星期三 (星期四 ※)"
+    "raw": "逢星期三 (星期四 ※)",
+    "from": "",
+    "to": ""
    },
    "announcements": [],
    "photo": "https://www.lcsd.gov.hk/en/beach/common/graphics/SP/small/kennedy_town_sp.jpg",
@@ -3873,7 +3879,9 @@
    "cleaning": {
     "day": "二",
     "fallback": "五",
-    "raw": "逢星期二 (星期五 ※)"
+    "raw": "逢星期二 (星期五 ※)",
+    "from": "",
+    "to": ""
    },
    "announcements": [
     {
@@ -4424,7 +4432,9 @@
    "cleaning": {
     "day": "二",
     "fallback": "一",
-    "raw": "逢星期二 (星期一 ※)"
+    "raw": "逢星期二 (星期一 ※)",
+    "from": "",
+    "to": ""
    },
    "announcements": [],
    "photo": "https://www.lcsd.gov.hk/en/beach/common/graphics/SP/small/Pao%20Yue%20Kong%20SP.jpeg",
@@ -4932,7 +4942,9 @@
    "cleaning": {
     "day": "二",
     "fallback": "四",
-    "raw": "逢星期二 (星期四 ※)"
+    "raw": "逢星期二 (星期四 ※)",
+    "from": "",
+    "to": ""
    },
    "announcements": [
     {
@@ -5612,7 +5624,9 @@
    "cleaning": {
     "day": "一",
     "fallback": "三",
-    "raw": "逢星期一 (星期三 ※)"
+    "raw": "逢星期一 (星期三 ※)",
+    "from": "",
+    "to": ""
    },
    "announcements": [],
    "photo": "https://www.lcsd.gov.hk/en/beach/common/graphics/SP/small/Tai%20Kok%20Tsui%20SP.JPG",
@@ -6150,7 +6164,9 @@
    "cleaning": {
     "day": "三",
     "fallback": "二",
-    "raw": "逢星期三 (星期二 ※)"
+    "raw": "逢星期三 (星期二 ※)",
+    "from": "",
+    "to": ""
    },
    "announcements": [],
    "photo": "https://www.lcsd.gov.hk/en/beach/common/graphics/SP/small/Lai%20Chi%20Kok%20Park%20SP.jpg",
@@ -6645,7 +6661,9 @@
    "cleaning": {
     "day": "五",
     "fallback": "二",
-    "raw": "逢星期五 (星期二 ※)"
+    "raw": "逢星期五 (星期二 ※)",
+    "from": "",
+    "to": ""
    },
    "announcements": [],
    "photo": "https://www.lcsd.gov.hk/en/beach/common/graphics/SP/small/Sham%20Shui%20Po%20Park%20SP.jpg",
@@ -7128,7 +7146,9 @@
    "cleaning": {
     "day": "四",
     "fallback": "二",
-    "raw": "逢星期四 (星期二 ※)"
+    "raw": "逢星期四 (星期二 ※)",
+    "from": "",
+    "to": ""
    },
    "announcements": [],
    "photo": "https://www.lcsd.gov.hk/en/beach/common/graphics/SP/small/Lei%20Cheng%20Uk%20SP.jpg",
@@ -7612,7 +7632,9 @@
    "cleaning": {
     "day": "四",
     "fallback": "五",
-    "raw": "逢星期四 (星期五 ※)"
+    "raw": "逢星期四 (星期五 ※)",
+    "from": "",
+    "to": ""
    },
    "announcements": [],
    "photo": "https://www.lcsd.gov.hk/en/beach/common/graphics/SP/small/twssp.JPG",
@@ -8111,7 +8133,9 @@
    "cleaning": {
     "day": "三",
     "fallback": "二",
-    "raw": "逢星期三 (星期二 ※)"
+    "raw": "逢星期三 (星期二 ※)",
+    "from": "",
+    "to": ""
    },
    "announcements": [],
    "photo": "https://www.lcsd.gov.hk/en/beach/common/graphics/SP/small/Ho%20Man%20Tin%20SP.jpg",
@@ -8607,7 +8631,9 @@
    "cleaning": {
     "day": "一",
     "fallback": "二",
-    "raw": "逢星期一 (星期二 ※)"
+    "raw": "逢星期一 (星期二 ※)",
+    "from": "",
+    "to": ""
    },
    "announcements": [
     {
@@ -9132,7 +9158,9 @@
    "cleaning": {
     "day": "五",
     "fallback": "三",
-    "raw": "逢星期五 (星期三 ※)"
+    "raw": "逢星期五 (星期三 ※)",
+    "from": "",
+    "to": ""
    },
    "announcements": [],
    "photo": "https://www.lcsd.gov.hk/en/beach/common/graphics/SP/small/Morse%20Park%20SP.jpg",
@@ -9633,7 +9661,9 @@
    "cleaning": {
     "day": "一",
     "fallback": "二",
-    "raw": "逢星期一 (星期二 ※)"
+    "raw": "逢星期一 (星期二 ※)",
+    "from": "",
+    "to": ""
    },
    "announcements": [],
    "photo": "https://www.lcsd.gov.hk/en/beach/common/graphics/SP/small/Hammer%20Hill%20Rd%20SP.jpg",
@@ -10113,7 +10143,9 @@
    "cleaning": {
     "day": "二",
     "fallback": "四",
-    "raw": "逢星期二 (星期四 ※)"
+    "raw": "逢星期二 (星期四 ※)",
+    "from": "",
+    "to": ""
    },
    "announcements": [],
    "photo": "https://www.lcsd.gov.hk/en/beach/common/graphics/SP/small/Jordon%20Valley%20SP.jpg",
@@ -10612,7 +10644,9 @@
    "cleaning": {
     "day": "三",
     "fallback": "五",
-    "raw": "逢星期三 (星期五 ※)"
+    "raw": "逢星期三 (星期五 ※)",
+    "from": "",
+    "to": ""
    },
    "announcements": [
     {
@@ -11128,7 +11162,9 @@
    "cleaning": {
     "day": "四",
     "fallback": "一",
-    "raw": "逢星期四 (星期一 ※)"
+    "raw": "逢星期四 (星期一 ※)",
+    "from": "",
+    "to": ""
    },
    "announcements": [],
    "photo": "https://www.lcsd.gov.hk/en/beach/common/graphics/SP/small/lam_tin_sp.jpg",
@@ -11667,7 +11703,9 @@
    "cleaning": {
     "day": "五",
     "fallback": "三",
-    "raw": "逢星期五 (星期三 ※)"
+    "raw": "逢星期五 (星期三 ※)",
+    "from": "",
+    "to": ""
    },
    "announcements": [],
    "photo": "https://www.lcsd.gov.hk/en/beach/common/graphics/SP/small/Sha%20Tin%20SP.jpg",
@@ -12166,7 +12204,9 @@
    "cleaning": {
     "day": "四",
     "fallback": "三",
-    "raw": "逢星期四 (星期三 ※)"
+    "raw": "逢星期四 (星期三 ※)",
+    "from": "",
+    "to": ""
    },
    "announcements": [],
    "photo": "https://www.lcsd.gov.hk/en/beach/common/graphics/SP/small/Hin%20Tin%20SP.jpg",
@@ -12648,7 +12688,9 @@
    "cleaning": {
     "day": "二",
     "fallback": "一",
-    "raw": "逢星期二 (星期一 ※)"
+    "raw": "逢星期二 (星期一 ※)",
+    "from": "",
+    "to": ""
    },
    "announcements": [],
    "photo": "https://www.lcsd.gov.hk/en/beach/common/graphics/SP/small/Ma%20On%20Shan%20SP.jpg",
@@ -13179,7 +13221,9 @@
    "cleaning": {
     "day": "一",
     "fallback": "二",
-    "raw": "逢星期一 (星期二 ※)"
+    "raw": "逢星期一 (星期二 ※)",
+    "from": "",
+    "to": ""
    },
    "announcements": [
     {
@@ -13669,7 +13713,9 @@
    "cleaning": {
     "day": "三",
     "fallback": "四",
-    "raw": "逢星期三 (星期四 ※)"
+    "raw": "逢星期三 (星期四 ※)",
+    "from": "",
+    "to": ""
    },
    "announcements": [],
    "photo": "https://www.lcsd.gov.hk/en/beach/common/graphics/SP/small/Sai%20Kung%20SP.jpg",
@@ -13740,7 +13786,6 @@
       }
      ],
      "notes": [
-      "只開放室內主池及訓練池　其他泳池維修: 1.11 &ndash; 31.3",
       "只開放室內主池及訓練池　其他泳池維修: 1.4 - 15.4",
       "只開放戶 外泳池　室內 泳池維修： 16.4 - 5.6"
      ]
@@ -13777,7 +13822,6 @@
       }
      ],
      "notes": [
-      "只開放室內主池及訓練池　其他泳池維修: 1.11 &ndash; 31.3",
       "只開放戶 外泳池　室內 泳池維修： 16.4 - 5.6"
      ]
     },
@@ -13978,7 +14022,7 @@
       }
      ],
      "notes": [
-      "只開放室內主池及訓練池　其他泳池維修: 1.11 &ndash; 31.3"
+      "只開放室內主池及訓練池　其他泳池維修: 1.11 – 31.3"
      ]
     },
     "十二月": {
@@ -14013,7 +14057,7 @@
       }
      ],
      "notes": [
-      "只開放室內主池及訓練池　其他泳池維修: 1.11 &ndash; 31.3"
+      "只開放室內主池及訓練池　其他泳池維修: 1.11 – 31.3"
      ]
     },
     "一月": {
@@ -14048,7 +14092,7 @@
       }
      ],
      "notes": [
-      "只開放室內主池及訓練池　其他泳池維修: 1.11 &ndash; 31.3"
+      "只開放室內主池及訓練池　其他泳池維修: 1.11 – 31.3"
      ]
     },
     "二月": {
@@ -14083,7 +14127,7 @@
       }
      ],
      "notes": [
-      "只開放室內主池及訓練池　其他泳池維修: 1.11 &ndash; 31.3"
+      "只開放室內主池及訓練池　其他泳池維修: 1.11 – 31.3"
      ]
     },
     "三月": {
@@ -14118,7 +14162,7 @@
       }
      ],
      "notes": [
-      "只開放室內主池及訓練池　其他泳池維修: 1.11 &ndash; 31.3"
+      "只開放室內主池及訓練池　其他泳池維修: 1.11 – 31.3"
      ]
     }
    },
@@ -14173,7 +14217,9 @@
    "cleaning": {
     "day": "四",
     "fallback": "五",
-    "raw": "逢星期四 (星期五 ※)"
+    "raw": "逢星期四 (星期五 ※)",
+    "from": "",
+    "to": ""
    },
    "announcements": [],
    "photo": "https://www.lcsd.gov.hk/en/beach/common/graphics/SP/small/Tuen%20Mun%20SP.jpg",
@@ -14651,7 +14697,9 @@
    "cleaning": {
     "day": "二",
     "fallback": "一",
-    "raw": "逢星期二 (星期一 ※)"
+    "raw": "逢星期二 (星期一 ※)",
+    "from": "",
+    "to": ""
    },
    "announcements": [],
    "photo": "https://www.lcsd.gov.hk/en/beach/common/graphics/SP/small/Yan%20Oi%20Tong%20SP.jpg",
@@ -15170,7 +15218,9 @@
    "cleaning": {
     "day": "三",
     "fallback": "一",
-    "raw": "逢星期三 (星期一 ※)"
+    "raw": "逢星期三 (星期一 ※)",
+    "from": "",
+    "to": ""
    },
    "announcements": [],
    "photo": "https://www.lcsd.gov.hk/en/beach/common/graphics/SP/small/tuen_mun_north_west_sp.jpg",
@@ -15655,7 +15705,9 @@
    "cleaning": {
     "day": "五",
     "fallback": "二",
-    "raw": "逢星期五 (星期二 ※)"
+    "raw": "逢星期五 (星期二 ※)",
+    "from": "",
+    "to": ""
    },
    "announcements": [],
    "photo": "https://www.lcsd.gov.hk/en/beach/common/graphics/SP/small/Kwai%20Shing%20SP.jpg",
@@ -16136,7 +16188,9 @@
    "cleaning": {
     "day": "三",
     "fallback": "二",
-    "raw": "逢星期三 (星期二 ※)"
+    "raw": "逢星期三 (星期二 ※)",
+    "from": "",
+    "to": ""
    },
    "announcements": [],
    "photo": "https://www.lcsd.gov.hk/en/beach/common/graphics/SP/small/North%20Kwai%20Chung%20SP.jpg",
@@ -16617,7 +16671,9 @@
    "cleaning": {
     "day": "四",
     "fallback": "三",
-    "raw": "逢星期四 (星期三 ※)"
+    "raw": "逢星期四 (星期三 ※)",
+    "from": "",
+    "to": ""
    },
    "announcements": [],
    "photo": "https://www.lcsd.gov.hk/en/beach/common/graphics/SP/small/Tsing%20Yi%20SP.jpg",
@@ -17090,7 +17146,9 @@
    "cleaning": {
     "day": "二",
     "fallback": "一",
-    "raw": "逢星期二 (星期一 ※)"
+    "raw": "逢星期二 (星期一 ※)",
+    "from": "",
+    "to": ""
    },
    "announcements": [],
    "photo": "https://www.lcsd.gov.hk/en/beach/common/graphics/SP/small/TYSWSP.jpg",
@@ -17610,7 +17668,9 @@
    "cleaning": {
     "day": "三",
     "fallback": "二",
-    "raw": "逢星期三 (星期二 ※)"
+    "raw": "逢星期三 (星期二 ※)",
+    "from": "",
+    "to": ""
    },
    "announcements": [],
    "photo": "https://www.lcsd.gov.hk/en/beach/common/graphics/SP/small/Yuen%20Long%20SP.jpg",
@@ -18089,7 +18149,9 @@
    "cleaning": {
     "day": "四",
     "fallback": "五",
-    "raw": "逢星期四 (星期五 ※)"
+    "raw": "逢星期四 (星期五 ※)",
+    "from": "",
+    "to": ""
    },
    "announcements": [],
    "photo": "https://www.lcsd.gov.hk/en/beach/common/graphics/SP/small/Tin%20Shui%20Wai%20SP.jpg",
@@ -18562,7 +18624,9 @@
    "cleaning": {
     "day": "一",
     "fallback": "二",
-    "raw": "逢星期一 (星期二 ※)"
+    "raw": "逢星期一 (星期二 ※)",
+    "from": "",
+    "to": ""
    },
    "announcements": [],
    "photo": "https://www.lcsd.gov.hk/en/beach/common/graphics/SP/small/Ping%20Shan%20Tin%20Siu%20Wan%20SP.jpg",
@@ -19076,7 +19140,9 @@
    "cleaning": {
     "day": "二",
     "fallback": "三",
-    "raw": "逢星期二 (星期三 ※)"
+    "raw": "逢星期二 (星期三 ※)",
+    "from": "",
+    "to": ""
    },
    "announcements": [],
    "photo": "https://www.lcsd.gov.hk/en/beach/common/graphics/SP/small/Tin%20Sau%20Road%20SP.JPG",
@@ -19589,7 +19655,9 @@
    "cleaning": {
     "day": "二",
     "fallback": "三",
-    "raw": "逢星期二 (星期三 ※)"
+    "raw": "逢星期二 (星期三 ※)",
+    "from": "",
+    "to": ""
    },
    "announcements": [],
    "photo": "https://www.lcsd.gov.hk/en/beach/common/graphics/SP/small/Fanling%20SP.jpg",
@@ -20067,7 +20135,9 @@
    "cleaning": {
     "day": "四",
     "fallback": "三",
-    "raw": "逢星期四 (星期三 ※)"
+    "raw": "逢星期四 (星期三 ※)",
+    "from": "",
+    "to": ""
    },
    "announcements": [],
    "photo": "https://www.lcsd.gov.hk/en/beach/common/graphics/SP/small/Sheung%20Shui%20SP.jpg",
@@ -20502,7 +20572,9 @@
    "cleaning": {
     "day": "一",
     "fallback": "三",
-    "raw": "逢星期一 (星期三 ※)"
+    "raw": "逢星期一 (星期三 ※)",
+    "from": "",
+    "to": ""
    },
    "announcements": [],
    "photo": "https://www.lcsd.gov.hk/en/beach/common/graphics/SP/small/Tai%20Po%20SP.jpg",
@@ -20979,7 +21051,9 @@
    "cleaning": {
     "day": "四",
     "fallback": "五",
-    "raw": "逢星期四 (星期五 ※)"
+    "raw": "逢星期四 (星期五 ※)",
+    "from": "",
+    "to": ""
    },
    "announcements": [],
    "photo": "https://www.lcsd.gov.hk/en/beach/common/graphics/SP/small/Tung%20Cheong%20Street%20SP.jpg",
@@ -21458,7 +21532,9 @@
    "cleaning": {
     "day": "二",
     "fallback": "三",
-    "raw": "逢星期二 (星期三 ※)"
+    "raw": "逢星期二 (星期三 ※)",
+    "from": "",
+    "to": ""
    },
    "announcements": [],
    "photo": "https://www.lcsd.gov.hk/en/beach/common/graphics/SP/small/TKCWu%20Chung%20SP.JPG",
@@ -21529,8 +21605,7 @@
       }
      ],
      "notes": [
-      "只開放室內主池　戶外泳池維修：1.4 - 15.4",
-      "只開放戶外泳池　室內 主池維修 : 1.5 &ndash; 30.6"
+      "只開放室內主池　戶外泳池維修：1.4 - 15.4"
      ]
     },
     "五月": {
@@ -21565,7 +21640,7 @@
       }
      ],
      "notes": [
-      "只開放戶外泳池　室內 主池維修 : 1.5 &ndash; 30.6"
+      "只開放戶外泳池　室內 主池維修 : 1.5 – 30.6"
      ]
     },
     "六月": {
@@ -21767,8 +21842,7 @@
       }
      ],
      "notes": [
-      "只開放室內主池　戶外泳池維修： 1.11 - 31.3",
-      "只開放戶外泳池　室內 主池維修 : 1.5 &ndash; 30.6"
+      "只開放室內主池　戶外泳池維修： 1.11 - 31.3"
      ]
     },
     "十二月": {
@@ -21803,8 +21877,7 @@
       }
      ],
      "notes": [
-      "只開放室內主池　戶外泳池維修： 1.11 - 31.3",
-      "只開放戶外泳池　室內 主池維修 : 1.5 &ndash; 30.6"
+      "只開放室內主池　戶外泳池維修： 1.11 - 31.3"
      ]
     },
     "一月": {
@@ -21839,8 +21912,7 @@
       }
      ],
      "notes": [
-      "只開放室內主池　戶外泳池維修： 1.11 - 31.3",
-      "只開放戶外泳池　室內 主池維修 : 1.5 &ndash; 30.6"
+      "只開放室內主池　戶外泳池維修： 1.11 - 31.3"
      ]
     },
     "二月": {
@@ -21875,8 +21947,7 @@
       }
      ],
      "notes": [
-      "只開放室內主池　戶外泳池維修： 1.11 - 31.3",
-      "只開放戶外泳池　室內 主池維修 : 1.5 &ndash; 30.6"
+      "只開放室內主池　戶外泳池維修： 1.11 - 31.3"
      ]
     },
     "三月": {
@@ -21911,8 +21982,7 @@
       }
      ],
      "notes": [
-      "只開放室內主池　戶外泳池維修： 1.11 - 31.3",
-      "只開放戶外泳池　室內 主池維修 : 1.5 &ndash; 30.6"
+      "只開放室內主池　戶外泳池維修： 1.11 - 31.3"
      ]
     }
    },
@@ -21983,7 +22053,9 @@
    "cleaning": {
     "day": "一",
     "fallback": "三",
-    "raw": "逢星期一 (星期三 ※)"
+    "raw": "逢星期一 (星期三 ※)",
+    "from": "",
+    "to": ""
    },
    "announcements": [
     {
@@ -22346,7 +22418,9 @@
    "cleaning": {
     "day": "五",
     "fallback": "四",
-    "raw": "逢星期五 (星期四 ※)"
+    "raw": "逢星期五 (星期四 ※)",
+    "from": "",
+    "to": ""
    },
    "announcements": [],
    "photo": "https://www.lcsd.gov.hk/en/beach/common/graphics/SP/small/Mui%20Wo%20SP.jpg",
@@ -22844,7 +22918,9 @@
    "cleaning": {
     "day": "二",
     "fallback": "三",
-    "raw": "逢星期二 (星期三 ※)"
+    "raw": "逢星期二 (星期三 ※)",
+    "from": "",
+    "to": ""
    },
    "announcements": [],
    "photo": "https://www.lcsd.gov.hk/en/beach/common/graphics/SP/small/Tung-Chung-SP.jpg",

@@ -399,8 +399,11 @@ def parse_cleaning(panel):
         if m:
             fb = re.search(r"[（(]\s*星期([一二三四五六日天])\s*[※*]?\s*[）)]", seg)
             raw = re.search(r"逢\s*星期[一二三四五六日天](?:\s*[（(][^）)]{0,24}[）)])?", seg)
+            raws = raw.group(0).strip() if raw else ""
+            # 灣仔例外：官網寫「(上午10時至下午4時)」，唔係「第二節完結」
+            fs, ts = parse_zh_range(raws)
             return {"day": m.group(1), "fallback": fb.group(1) if fb else "",
-                    "raw": raw.group(0).strip() if raw else ""}
+                    "raw": raws, "from": fs or "", "to": ts or ""}
     return None
 
 
